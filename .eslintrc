@@ -1,0 +1,119 @@
+{
+  // http://eslint.org/docs/rules/
+
+  "ecmaFeatures": {
+    "arrowFunctions": true,                     // enable arrow functions
+    "binaryLiterals": false,                    // enable binary literals
+    "blockBindings": true,                      // enable let and const (aka block bindings)
+    "classes": true,                            // enable classes
+    "defaultParams": true,                      // enable default function parameters
+    "destructuring": true,                      // enable destructuring
+    "forOf": true,                              // enable for-of loops
+    "generators": true,                         // enable generators
+    "modules": true,                            // enable modules and global strict mode
+    "objectLiteralComputedProperties": true,    // enable computed object literal property names
+    "objectLiteralDuplicateProperties": true,   // enable duplicate object literal properties in strict mode
+    "objectLiteralShorthandMethods": true,      // enable object literal shorthand methods
+    "objectLiteralShorthandProperties": true,   // enable object literal shorthand properties
+    "octalLiterals": false,                     // enable octal literals
+    "regexUFlag": false,                        // enable the regular expression u flag
+    "regexYFlag": false,                        // enable the regular expression y flag
+    "restParams": true,                         // enable the rest parameters
+    "spread": true,                             // enable the spread operator
+    "superInFunctions": true,                   // enable super references inside of functions
+    "templateStrings": true,                    // enable template strings
+    "unicodeCodePointEscapes": false,           // enable code point escapes
+    "globalReturn": false                      // allow return statements in the global scope
+  },
+
+  "env": {
+    "browser": true      // browser global variables
+  },
+
+  "parserOptions": {
+    "ecmaVersion": 7,
+    "sourceType": "module"
+  },
+
+  "extends": "eslint:recommended",
+
+  "root": true,
+
+  "rules": {
+    "array-bracket-spacing": ["error", "never"],
+    "block-scoped-var": ["error"],
+    "block-spacing": ["error", "always"],
+    "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+    "camelcase": ["error", { "properties": "always" }],
+    "comma-dangle": ["error", "never"],
+    "comma-spacing": ["error", { "before": false, "after": true }],
+    "comma-style": ["error", "last"],
+    "computed-property-spacing": ["error", "never"],
+    "dot-location": ["error", "property"],
+    "eol-last": ["error", "unix"],
+    "guard-for-in": ["error"],
+    "indent": ["error", 2, { "SwitchCase": 1, "VariableDeclarator": { "var": 2, "let": 2, "const": 3 } }],
+    "key-spacing": ["error", { "beforeColon": false, "afterColon": true }],
+    "keyword-spacing": ["error", { "before": true, "after": true }],
+    "linebreak-style": ["error", "unix"],
+    "new-cap": ["error", { "newIsCap": true, "capIsNew": false }],
+    "new-parens": ["error"],
+    "no-alert": ["error"],
+    "no-array-constructor": ["error"],
+    "no-caller": ["error"],
+    "no-eval": ["error"],
+    "no-extra-bind": ["error"],
+    "no-floating-decimal": ["error"],
+    "no-implicit-globals": ["error"],
+    "no-implied-eval": ["error"],
+    "no-labels": ["error"],
+    "no-lone-blocks": ["error"],
+    "no-lonely-if": ["error"],
+    "no-loop-func": ["error"],
+    "no-multi-spaces": ["error"],
+    "no-multiple-empty-lines": ["error", { "max": 1, "maxBOF": 0, "maxEOF": 0 }],
+    "no-native-reassign": ["error"],
+    "no-new": ["error"],
+    "no-new-func": ["error"],
+    "no-new-wrappers": ["error"],
+    "no-octal-escape": ["error"],
+    "no-return-assign": ["error"],
+    "no-script-url": ["error"],
+    "no-self-compare": ["error"],
+    "no-sequences": ["error"],
+    "no-shadow": ["error"],
+    "no-shadow-restricted-names": ["error"],
+    "no-spaced-func": ["error"],
+    "no-trailing-spaces": ["error"],
+    "no-undef-init": ["error"],
+    "no-unneeded-ternary": ["error"],
+    "no-unused-vars": ["error", { "vars": "all", "args": "all", "argsIgnorePattern": "^_" }],
+    "no-use-before-define": ["error", "nofunc"],
+    "no-useless-call": ["error"],
+    "no-useless-concat": ["error"],
+    "no-useless-escape": ["error"],
+    "no-void": ["error"],
+    "no-whitespace-before-property": ["error"],
+    "no-with": ["error"],
+    "object-curly-spacing": ["error", "always"],
+    "operator-assignment": ["error", "always"],
+    "operator-linebreak": ["error", "after"],
+    "padded-blocks": ["error", "never"],
+    "quote-props": ["error", "consistent"],
+    "quotes": ["error", "single"],
+    "radix": ["error"],
+    "semi": ["error", "always"],
+    "semi-spacing": ["error", { "before": false, "after": true }],
+    "space-before-blocks": ["error", "always"],
+    "space-before-function-paren": ["error", "never"],
+    "space-in-parens": ["error", "never"],
+    "space-infix-ops": ["error"],
+    "space-unary-ops": ["error", { "words": true, "nonwords": false }],
+    "strict": ["warn"],
+    "wrap-iife": ["error", "inside"],
+    "no-var": ["error"],
+    "prefer-const": ["error"],
+    "prefer-arrow-callback": ["error"],
+    "no-console": ["error", { "allow": ["warn", "error"] }]
+  }
+}
