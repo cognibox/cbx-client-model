@@ -26,7 +26,154 @@ describe('Model', () => {
     });
   });
 
-  describe('when overriding attributeClass', () => {
+  describe('#hasChanged', () => {
+    context('initially', () => {
+      context('when attribute is initialized with a value', () => {
+        it('should be false', () => {
+          const defaultValue = Math.random();
+          class CustomModel extends Model {
+            static attributes() { return { element: { default: defaultValue } }; }
+          }
+
+          const customInstance = new CustomModel({ element: defaultValue + 1 });
+
+          expect(customInstance.hasChanged).to.be.false;
+        });
+      });
+
+      context('when attribute is not initialized with a value', () => {
+        context('when attribute has a default value', () => {
+          it('should be false', () => {
+            const defaultValue = Math.random();
+            class CustomModel extends Model {
+              static attributes() { return { element: { default: defaultValue } }; }
+            }
+
+            const customInstance = new CustomModel();
+
+            expect(customInstance.hasChanged).to.be.false;
+          });
+        });
+
+        context('when attribute does not have a default value', () => {
+          it('should be false', () => {
+            class CustomModel extends Model {
+              static attributes() { return { element: {} }; }
+            }
+
+            const customInstance = new CustomModel();
+
+            expect(customInstance.hasChanged).to.be.false;
+          });
+        });
+      });
+    });
+
+    context('model having multiple attributes', () => {
+      let customInstance;
+      const firstAttributeValue = Math.random();
+      const secondAttributeValue = Math.random();
+      class CustomModel extends Model {
+        static attributes() {
+          return { firstAttribute: { default: firstAttributeValue }, secondAttribute: { default: secondAttributeValue } };
+        }
+      }
+
+      beforeEach(() => { customInstance = new CustomModel(); });
+
+      context('when some attributes have changed', () => {
+        beforeEach(() => { customInstance.attributes.firstAttribute.value = firstAttributeValue + 1; });
+
+        it('should be true', () => { expect(customInstance.hasChanged).to.be.true; });
+
+        context('when those attributes return to their original value', () => {
+          beforeEach(() => { customInstance.attributes.firstAttribute.value = firstAttributeValue; });
+
+          it('should be false', () => { expect(customInstance.hasChanged).to.be.false; });
+        });
+      });
+    });
+  });
+
+  describe('#changes', () => {
+    context('initially', () => {
+      context('when attribute is initialized with a value', () => {
+        it('should be empty', () => {
+          const defaultValue = Math.random();
+          class CustomModel extends Model {
+            static attributes() { return { element: { default: defaultValue } }; }
+          }
+
+          const customInstance = new CustomModel({ element: defaultValue + 1 });
+
+          expect(customInstance.changes).to.deep.equal({});
+        });
+      });
+
+      context('when attribute is not initialized with a value', () => {
+        context('when attribute has a default value', () => {
+          it('should be empty', () => {
+            const defaultValue = Math.random();
+            class CustomModel extends Model {
+              static attributes() { return { element: { default: defaultValue } }; }
+            }
+
+            const customInstance = new CustomModel();
+
+            expect(customInstance.changes).to.deep.equal({});
+          });
+        });
+
+        context('when attribute does not have a default value', () => {
+          it('should be empty', () => {
+            class CustomModel extends Model {
+              static attributes() { return { element: {} }; }
+            }
+
+            const customInstance = new CustomModel();
+
+            expect(customInstance.changes).to.deep.equal({});
+          });
+        });
+      });
+    });
+
+    context('model having multiple attributes', () => {
+      let customInstance;
+      const firstAttributeValue = Math.random();
+      const secondAttributeValue = Math.random();
+      class CustomModel extends Model {
+        static attributes() {
+          return { firstAttribute: { default: firstAttributeValue }, secondAttribute: { default: secondAttributeValue } };
+        }
+      }
+
+      beforeEach(() => { customInstance = new CustomModel(); });
+
+      context('when some attributes have changed', () => {
+        const newValue = firstAttributeValue + 1;
+
+        beforeEach(() => { customInstance.attributes.firstAttribute.value = newValue; });
+
+        it('should list the attribute with his new and old value', () => {
+          expect(customInstance.changes).to.deep.equal({
+            firstAttribute: {
+              newValue: newValue,
+              oldValue: firstAttributeValue
+            }
+          });
+        });
+
+        context('when those attributes return to their original value', () => {
+          beforeEach(() => { customInstance.attributes.firstAttribute.value = firstAttributeValue; });
+
+          it('should be empty', () => { expect(customInstance.changes).to.deep.equal({}); });
+        });
+      });
+    });
+  });
+
+  context('when overriding attributeClass', () => {
     class CustomAttribute extends Model.attributeClass() {}
     class CustomModel extends Model {
       static attributeClass() { return CustomAttribute; }

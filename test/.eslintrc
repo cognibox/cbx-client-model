@@ -1,6 +1,7 @@
 {
   "globals": {
     "beforeEach": true,
+    "context": true,
     "describe": true,
     "it": true
   }
