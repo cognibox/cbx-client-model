@@ -1,4 +1,4 @@
-const a = (superclass) => class extends superclass {
+const mixin = (superclass) => class extends superclass {
   static urlResource() {}
 
   static urlRoot() {}
@@ -18,11 +18,11 @@ const a = (superclass) => class extends superclass {
     return this._primaryKey;
   }
 
-  buildUrl() { return this.constructor.buildUrl(this.getPrimaryAttribute().get()); }
+  buildUrl() { return this.constructor.buildUrl(this.getPrimaryAttribute().value); }
 
   getPrimaryAttribute() {
     return this.attributes[this.constructor.getPrimaryKey()];
   }
 };
 
-export default a;
+export default mixin;

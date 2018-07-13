@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Base from '../../base.js';
+import Model from '../../model.js';
 import HttpMixin from '../../mixins/http.js';
 
 describe('Http', () => {
@@ -9,7 +9,7 @@ describe('Http', () => {
     urlResource = Math.random().toString();
     urlRoot = Math.random().toString();
 
-    Klass = class extends HttpMixin(Base) {
+    Klass = class extends HttpMixin(Model) {
       static urlRoot() { return urlRoot; }
 
       static urlResource() { return urlResource; }
