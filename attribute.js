@@ -13,7 +13,7 @@ class BaseAttribute {
   parse(value) { return value; }
 
   reset() {
-    this.set(this.getOriginalValue());
+    this.value = this.getOriginalValue();
     this.setPristine();
   }
 
@@ -44,12 +44,15 @@ function constructorValues(value) {
   this.setOriginalValuePristine = () => { originalValue = value; };
   this.setPristine();
 
-  this.get = () => this.getValue(value);
-  this.set = (newValue) => {
-    value = this.setValue(newValue, value);
-    this.trigger();
-    return value;
-  };
+  Object.defineProperty(this, 'value', {
+    enumerable: true,
+    get() { return this.getValue(value); },
+    set(newValue) {
+      value = this.setValue(newValue, value);
+      this.trigger();
+      return value;
+    }
+  });
 }
 
 function constructorTriggers() {

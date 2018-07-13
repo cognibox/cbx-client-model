@@ -35,15 +35,15 @@ describe('Attribute', () => {
 
       beforeEach(() => {
         newValue = originalValue + 1;
-        model.set(newValue);
+        model.value = newValue;
       });
 
-      it('should store the new value', () => { expect(model.get()).to.equal(newValue); });
+      it('should store the new value', () => { expect(model.value).to.equal(newValue); });
       it('should set hasChanged to true', () => { expect(model.hasChanged).to.be.true; });
       it('should set isDirty to true', () => { expect(model.isDirty).to.be.true; });
 
       describe('when value is set back to the original value', () => {
-        beforeEach(() => { model.set(originalValue); });
+        beforeEach(() => { model.value = originalValue; });
 
         it('should set hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
         it('should keep isDirty to true', () => { expect(model.isDirty).to.be.true; });
@@ -51,7 +51,7 @@ describe('Attribute', () => {
     });
 
     describe('when new value is not different from old value', () => {
-      beforeEach(() => { model.set(originalValue); });
+      beforeEach(() => { model.value = originalValue; });
 
       it('should keep hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
       it('should keep isDirty to false', () => { expect(model.isDirty).to.be.false; });
@@ -62,7 +62,7 @@ describe('Attribute', () => {
         const callback = sinon.stub();
         model.onChange(callback);
 
-        model.set(originalValue + 1);
+        model.value = originalValue + 1;
 
         expect(callback).to.have.been.called;
       });
@@ -76,11 +76,11 @@ describe('Attribute', () => {
     beforeEach(() => {
       parent = {};
       model = new Attribute({ parent: parent, value: originalValue });
-      model.set(originalValue + 1);
+      model.value = originalValue + 1;
       model.reset();
     });
 
-    it('should set value to originalValue', () => { expect(model.get()).to.equal(originalValue); });
+    it('should set value to originalValue', () => { expect(model.value).to.equal(originalValue); });
     it('should set hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
     it('should set isDirty to false', () => { expect(model.isDirty).to.be.false; });
   });
