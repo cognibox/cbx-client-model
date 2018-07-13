@@ -64,7 +64,7 @@ describe('Attribute', () => {
 
         model.value = originalValue + 1;
 
-        expect(callback).to.have.been.called;
+        expect(callback).to.have.been.calledWith(model.value, originalValue);
       });
     });
   });

@@ -58,5 +58,5 @@ function constructorValues(value) {
 function constructorTriggers() {
   const onChangeCallbacks = [];
   this.onChange = (callback) => onChangeCallbacks.push(callback);
-  this.trigger = () => onChangeCallbacks.forEach((callback) => callback.call(this));
+  this.trigger = () => onChangeCallbacks.forEach((callback) => callback.call(this, this.value, this.getOriginalValue()));
 }
