@@ -2,7 +2,7 @@
   "name": "cbxClientModel",
   "license": "MIT",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register"
+    "test": "mocha --compilers js:babel-core/register --recursive"
   },
   "dependencies": {
     "lodash": "^4.17.10"
