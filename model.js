@@ -19,7 +19,7 @@ export default BaseModel;
 
 ////////////////
 
-function defineModelAttributes({ definitions = {}, properties = {} } = {}) {
+function buildAttributes({ definitions = {}, properties = {} } = {}) {
   const AttributeClass = this.constructor.attributeClass();
   const attributes = {};
 
@@ -28,8 +28,15 @@ function defineModelAttributes({ definitions = {}, properties = {} } = {}) {
     const definition = definitions[key];
     const value = key in properties ? properties[key] : definition.default;
     const attribute = new AttributeClass({ parent: this, value: value });
+
     attributes[key] = attribute;
   });
+
+  return attributes;
+}
+
+function defineModelAttributes({ definitions = {}, properties = {} } = {}) {
+  const attributes = buildAttributes.call(this, { definitions, properties });
 
   Object.defineProperty(this, 'attributes', {
     enumerable: true,
