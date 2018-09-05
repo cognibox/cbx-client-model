@@ -26,6 +26,43 @@ describe('Model', () => {
     });
   });
 
+  describe('#set', () => {
+    context('when attributes is not defined', () => {
+      class CustomModel extends Model {
+        static attributes() { return { name: {} }; }
+      }
+
+      it('should not compute it', () => {
+        const model = new CustomModel();
+        model.set({ something: Math.random() });
+        expect(model.attributes.something).to.be.undefined;
+      });
+    });
+
+    context('having a parser defined', () => {
+      class CustomModel extends Model {
+        static attributes() { return { name: {} }; }
+
+        parse(properties) {
+          if (properties && properties.toParse) {
+            properties.name = properties.toParse;
+          }
+
+          return properties;
+        }
+      }
+
+      it('should compute it', () => {
+        const toParseValue = Math.random();
+        const model = new CustomModel();
+
+        model.set({ something: Math.random(), toParse: toParseValue });
+
+        expect(model.attributes.name.value).to.equal(toParseValue);
+      });
+    });
+  });
+
   describe('when overriding attributeClass', () => {
     class CustomAttribute extends Model.attributeClass() {}
     class CustomModel extends Model {
