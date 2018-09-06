@@ -1,13 +1,10 @@
 import axios from 'axios';
-import chai from 'chai';
+import { expect } from 'chai';
 import Model from '../../model.js';
 import HttpMixin from '../../mixins/http.js';
 import AxiosMockAdapter from 'axios-mock-adapter';
-import chaiAsPromised from 'chai-as-promised';
 
 const httpMock = new AxiosMockAdapter(axios);
-const expect = chai.expect;
-chai.use(chaiAsPromised);
 
 describe('Http', () => {
   let urlResource, urlRoot, Klass;

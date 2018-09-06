@@ -11,6 +11,7 @@ class BaseModel {
 
     const attributesDefinition = this.constructor.attributes();
     defineModelAttributes.call(this, { definitions: attributesDefinition, properties: properties });
+    buildChanges.call(this);
   }
 
   parse(properties) { return properties; }
@@ -44,6 +45,42 @@ function buildAttributes({ definitions = {}, properties = {} } = {}) {
   });
 
   return attributes;
+}
+
+function buildChanges() {
+  const attributes = this.attributes;
+  let hasChanged = false;
+  const changes = {};
+
+  Object.keys(attributes).forEach((key) => {
+    const attribute = attributes[key];
+
+    attribute.onChange(() => {
+      if (attribute.hasChanged) {
+        changes[key] = { newValue: attribute.value, oldValue: attribute.getOriginalValue() };
+      } else {
+        delete changes[key];
+      }
+
+      hasChanged = computeHasChanged.call(this, changes);
+    });
+  });
+
+  Object.defineProperty(this, 'changes', {
+    enumerable: true,
+    get() { return changes; },
+    set() { console.error('[vueModel] changes assignation not allowed'); }
+  });
+
+  Object.defineProperty(this, 'hasChanged', {
+    enumerable: true,
+    get() { return hasChanged; },
+    set() { console.error('[vueModel] hasChanged assignation not allowed'); }
+  });
+}
+
+function computeHasChanged(changes) {
+  return Object.keys(changes).length > 0;
 }
 
 function defineModelAttributes({ definitions = {}, properties = {} } = {}) {
