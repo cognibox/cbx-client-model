@@ -1,6 +1,13 @@
-import { expect } from 'chai';
+import axios from 'axios';
+import chai from 'chai';
 import Model from '../../model.js';
 import HttpMixin from '../../mixins/http.js';
+import AxiosMockAdapter from 'axios-mock-adapter';
+import chaiAsPromised from 'chai-as-promised';
+
+const httpMock = new AxiosMockAdapter(axios);
+const expect = chai.expect;
+chai.use(chaiAsPromised);
 
 describe('Http', () => {
   let urlResource, urlRoot, Klass;
@@ -19,6 +26,34 @@ describe('Http', () => {
   describe('.buildUrl', () => {
     it('should format an url using urlRoot and urlResource', () => {
       expect(Klass.buildUrl()).to.equal(`${urlRoot}/${urlResource}`);
+    });
+  });
+
+  describe('.fetchOne', () => {
+    let KlassWithAttributes, id, url, data;
+
+    beforeEach(() => {
+      id = Math.random();
+      url = `${urlRoot}/${urlResource}/${id}`;
+      data = {
+        stuff: Math.random()
+      };
+
+      KlassWithAttributes = class extends Klass {
+        static attributes() { return { id: {}, stuff: {} }; }
+      };
+
+      httpMock.onGet(url).reply(200, data);
+    });
+
+    it('should return a new instance', async() => {
+      const model = await KlassWithAttributes.fetchOne(id);
+      expect(model).to.be.instanceof(KlassWithAttributes);
+    });
+
+    it('should set model properties', async() => {
+      const model = await KlassWithAttributes.fetchOne(id);
+      expect(model.attributes.stuff.value).to.equal(data.stuff);
     });
   });
 
@@ -60,6 +95,31 @@ describe('Http', () => {
 
         expect(klass.buildUrl()).to.equal(`${urlRoot}/${urlResource}/${otherKey}`);
       });
+    });
+  });
+
+  describe('#fetch', () => {
+    let model, KlassWithAttributes, id, url, data;
+
+    beforeEach(() => {
+      id = Math.random();
+      url = `${urlRoot}/${urlResource}/${id}`;
+      data = {
+        stuff: Math.random()
+      };
+
+      KlassWithAttributes = class extends Klass {
+        static attributes() { return { id: {}, stuff: {} }; }
+      };
+
+      model = new KlassWithAttributes({ id: id });
+
+      httpMock.onGet(url).reply(200, data);
+    });
+
+    it('should set model properties', async() => {
+      await model.fetch();
+      expect(model.attributes.stuff.value).to.equal(data.stuff);
     });
   });
 });
