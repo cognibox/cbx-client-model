@@ -3,10 +3,9 @@
     "beforeEach": true,
     "context": true,
     "describe": true,
-    "it": true,
-    "context": true
+    "it": true
   },
   "parserOptions": {
     "ecmaVersion": 8
-  },
+  }
 }
