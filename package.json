@@ -2,9 +2,11 @@
   "name": "cbxClientModel",
   "license": "MIT",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register"
+    "test": "mocha --compilers js:babel-core/register --recursive"
   },
   "dependencies": {
+    "axios": "^0.18.0",
+    "axios-mock-adapter": "^1.15.0",
     "lodash": "^4.17.10"
   },
   "devDependencies": {

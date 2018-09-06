@@ -1,4 +1,5 @@
 import Attribute from './attribute';
+import { forEach } from 'lodash';
 
 class BaseModel {
   static attributeClass() { return Attribute; }
@@ -14,6 +15,16 @@ class BaseModel {
   }
 
   parse(properties) { return properties; }
+
+  set(properties) {
+    properties = this.parse(properties);
+
+    forEach(properties, (value, key) => {
+      if (!this.attributes[key]) return;
+
+      this.attributes[key].value = value;
+    });
+  }
 }
 
 export default BaseModel;
