@@ -2,7 +2,8 @@
   "name": "cbxClientModel",
   "license": "MIT",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register --recursive"
+    "test": "mocha --compilers js:babel-core/register --recursive",
+    "lint": "./node_modules/.bin/eslint **/*.js"
   },
   "dependencies": {
     "axios": "^0.18.0",
