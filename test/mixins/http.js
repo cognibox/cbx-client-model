@@ -26,6 +26,27 @@ describe('Http', () => {
     });
   });
 
+  describe('.fetchAll', () => {
+    let KlassWithAttributes, url, data;
+
+    beforeEach(() => {
+      url = `${urlRoot}/${urlResource}`;
+      data = [];
+
+      KlassWithAttributes = class extends Klass {
+        static attributes() { return { id: {}, stuff: {} }; }
+      };
+
+      httpMock.onGet(url).reply(200, () => {
+        return [200, data];
+      });
+    });
+
+    it('should instiantiate as many in', () => {
+      data = [];
+    });
+  });
+
   describe('.fetchOne', () => {
     let KlassWithAttributes, id, url, data;
 
