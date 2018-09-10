@@ -10,6 +10,20 @@ const mixin = (superclass) => class extends superclass {
     return parts.filter((part) => part).join('/');
   }
 
+  static fetchAll() {
+    const url = this.buildUrl();
+
+    return axios.get(url).then((resp) => {
+      const result = Array.isArray(resp.data) ? { data: resp.data } : resp.data;
+
+      result.models = result.data.map((item) => {
+        return new (this)(item);
+      });
+
+      return result;
+    });
+  }
+
   static fetchOne(id) {
     const Model = this;
     const primaryKey = this.getPrimaryKey();
@@ -18,9 +32,7 @@ const mixin = (superclass) => class extends superclass {
       [primaryKey]: id
     });
 
-    return model.fetch().then(() => {
-      return model;
-    });
+    return model.fetch();
   }
 
   static findPrimaryKey() {
@@ -41,7 +53,9 @@ const mixin = (superclass) => class extends superclass {
     return axios.get(url).then((resp) => {
       this.set(resp.data);
 
-      return resp;
+      resp.data.model = this;
+
+      return resp.data;
     });
   }
 
