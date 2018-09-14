@@ -101,12 +101,12 @@ describe('Http', () => {
 
     it('should return a new instance', async() => {
       const result = await KlassWithAttributes.fetchOne(id);
-      expect(result.model).to.be.instanceof(KlassWithAttributes);
+      expect(result).to.be.instanceof(KlassWithAttributes);
     });
 
     it('should set model properties', async() => {
       const result = await KlassWithAttributes.fetchOne(id);
-      expect(result.model.attributes.stuff.value).to.equal(data.stuff);
+      expect(result.attributes.stuff.value).to.equal(data.stuff);
     });
   });
 

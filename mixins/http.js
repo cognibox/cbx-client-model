@@ -32,7 +32,7 @@ const mixin = (superclass) => class extends superclass {
       [primaryKey]: id
     });
 
-    return model.fetch();
+    return model.fetch().then(() => model);
   }
 
   static findPrimaryKey() {
@@ -53,9 +53,7 @@ const mixin = (superclass) => class extends superclass {
     return axios.get(url).then((resp) => {
       this.set(resp.data);
 
-      resp.data.model = this;
-
-      return resp.data;
+      return resp;
     });
   }
 
