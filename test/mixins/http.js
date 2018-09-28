@@ -26,6 +26,62 @@ describe('Http', () => {
     });
   });
 
+  describe('.fetchAll', () => {
+    let KlassWithAttributes, url, data;
+
+    beforeEach(() => {
+      url = `${urlRoot}/${urlResource}`;
+      data = [];
+
+      KlassWithAttributes = class extends Klass {
+        static attributes() { return { id: {}, stuff: {} }; }
+      };
+
+      httpMock.onGet(url).reply(() => {
+        return [200, data];
+      });
+    });
+
+    context('when data is an array', () => {
+      it('should convert data to instances', async() => {
+        data = [{}];
+        const result = await KlassWithAttributes.fetchAll();
+        expect(result.models[0]).to.be.instanceof(KlassWithAttributes);
+      });
+
+      it('should return as many instances as received', async() => {
+        data = [{}, {}, {}];
+        const result = await KlassWithAttributes.fetchAll();
+        expect(result.models.length).to.eq(data.length);
+      });
+    });
+
+    context('when data is an object', () => {
+      it('should convert data to instances', async() => {
+        data = { data: [{}] };
+        const result = await KlassWithAttributes.fetchAll();
+        expect(result.models[0]).to.be.instanceof(KlassWithAttributes);
+      });
+
+      it('should return as many instances as received', async() => {
+        data = { data: [{}, {}, {}] };
+        const result = await KlassWithAttributes.fetchAll();
+        expect(result.models.length).to.eq(data.data.length);
+      });
+
+      it('should keep original response information', async() => {
+        data = { data: [], count: Math.random(), otherStuff: Math.random() };
+        const result = await KlassWithAttributes.fetchAll();
+        expect(result).to.deep.equal({
+          data: data.data,
+          count: data.count,
+          otherStuff: data.otherStuff,
+          models: []
+        });
+      });
+    });
+  });
+
   describe('.fetchOne', () => {
     let KlassWithAttributes, id, url, data;
 
@@ -44,13 +100,13 @@ describe('Http', () => {
     });
 
     it('should return a new instance', async() => {
-      const model = await KlassWithAttributes.fetchOne(id);
-      expect(model).to.be.instanceof(KlassWithAttributes);
+      const result = await KlassWithAttributes.fetchOne(id);
+      expect(result).to.be.instanceof(KlassWithAttributes);
     });
 
     it('should set model properties', async() => {
-      const model = await KlassWithAttributes.fetchOne(id);
-      expect(model.attributes.stuff.value).to.equal(data.stuff);
+      const result = await KlassWithAttributes.fetchOne(id);
+      expect(result.attributes.stuff.value).to.equal(data.stuff);
     });
   });
 
