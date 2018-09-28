@@ -1,5 +1,8 @@
 {
   "name": "cbxClientModel",
+  "description": "",
+  "main": "main.js",
+  "version": "0.0.1",
   "license": "MIT",
   "scripts": {
     "test": "mocha --compilers js:babel-core/register --recursive",
