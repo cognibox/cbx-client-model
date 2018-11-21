@@ -25,12 +25,6 @@ class BaseModel {
       this.attributes[key].value = value;
     });
   }
-
-  setPristine() {
-    forEach(this.attributes, (value) => {
-      value.setPristine();
-    });
-  }
 }
 
 export default BaseModel;
