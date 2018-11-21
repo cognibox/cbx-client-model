@@ -89,7 +89,11 @@ const mixin = (superclass) => class extends superclass {
     data = Object.assign(modelData, data);
 
     const url = this.buildUrl();
-    return axios[method](url, data);
+    return axios[method](url, data).then((resp) => {
+      this.setPristine();
+
+      return resp;
+    });
   }
 };
 

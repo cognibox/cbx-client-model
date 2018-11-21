@@ -27,7 +27,6 @@ class BaseAttribute {
     if (!isEqual(oldValue, newValue)) {
       this.hasChanged = !isEqual(this.getOriginalValue(), newValue);
       this.isDirty = true;
-      this._parent.isDirty = true;
     }
 
     return this.parse(newValue);

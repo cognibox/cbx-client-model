@@ -267,6 +267,13 @@ describe('Http', () => {
         const result = await model.save();
         expect(result.data).to.deep.equal(patchData);
       });
+
+      it('should set the model pristine again', async() => {
+        await model.save();
+
+        expect(model.hasChanged).to.be.false;
+        expect(model.changes).to.be.empty;
+      });
     });
   });
 });

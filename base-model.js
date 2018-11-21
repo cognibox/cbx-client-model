@@ -25,6 +25,12 @@ class BaseModel {
       this.attributes[key].value = value;
     });
   }
+
+  setPristine() {
+    forEach(this.attributes, (value) => {
+      value.setPristine();
+    });
+  }
 }
 
 export default BaseModel;
@@ -50,13 +56,14 @@ function buildAttributes({ definitions = {}, properties = {} } = {}) {
 function buildChanges() {
   const attributes = this.attributes;
   let hasChanged = false;
-  const changes = {};
+  let changes = {};
 
   Object.keys(attributes).forEach((key) => {
     const attribute = attributes[key];
 
     attribute.onChange(() => {
       if (attribute.hasChanged) {
+        this.isDirty = true;
         changes[key] = { newValue: attribute.value, oldValue: attribute.getOriginalValue() };
       } else {
         delete changes[key];
@@ -77,6 +84,15 @@ function buildChanges() {
     get() { return hasChanged; },
     set() { console.error('[vueModel] hasChanged assignation not allowed'); }
   });
+
+  this.setPristine = () => {
+    forEach(this.attributes, (value) => {
+      value.setPristine();
+    });
+
+    changes = {};
+    hasChanged = false;
+  };
 }
 
 function computeHasChanged(changes) {
