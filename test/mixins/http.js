@@ -209,6 +209,47 @@ describe('Http', () => {
       };
     });
 
+    context('when passing data', () => {
+      context('when passing an existing attributes', () => {
+        it('should prioritize the passing value', async() => {
+          const modelValue = Math.random();
+          const dataValue = modelValue + 5;
+          const postData = { something: Math.random() };
+          const url = `${urlRoot}/${urlResource}`;
+          httpMock.onPost(url, {
+            attr1: dataValue
+          }).reply(() => {
+            return [200, postData];
+          });
+
+          model = new KlassWithAttributes({ attr1: modelValue });
+          const result = await model.save({ attr1: dataValue });
+
+          expect(result.data).to.deep.equal(postData);
+        });
+      });
+
+      context('when passing a non existing attributes', () => {
+        it('should send the value value', async() => {
+          const modelValue = Math.random();
+          const dataValue = modelValue + 5;
+          const postData = { something: Math.random() };
+          const url = `${urlRoot}/${urlResource}`;
+          httpMock.onPost(url, {
+            attr1: modelValue,
+            mew: dataValue
+          }).reply(() => {
+            return [200, postData];
+          });
+
+          model = new KlassWithAttributes({ attr1: modelValue });
+          const result = await model.save({ mew: dataValue });
+
+          expect(result.data).to.deep.equal(postData);
+        });
+      });
+    });
+
     context('when instance is new', () => {
       let postData, attr1Value, attr2Value;
 
