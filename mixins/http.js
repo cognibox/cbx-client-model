@@ -60,6 +60,41 @@ const mixin = (superclass) => class extends superclass {
   getPrimaryAttribute() {
     return this.attributes[this.constructor.getPrimaryKey()];
   }
+
+  isNew() {
+    const primaryValue = this.attributes[this.constructor.getPrimaryKey()].value;
+    return primaryValue === undefined || primaryValue === null;
+  }
+
+  save(data = {}) {
+    let method;
+
+    const modelData = {},
+          attributeKeys = Object.keys(this.attributes);
+
+    if (this.isNew()) {
+      method = 'post';
+      attributeKeys.forEach((key) => {
+        modelData[key] = this.attributes[key].value;
+      });
+    } else {
+      method = 'patch';
+      attributeKeys.forEach((key) => {
+        if (!this.attributes[key].hasChanged) return;
+
+        modelData[key] = this.attributes[key].value;
+      });
+    }
+
+    data = Object.assign(modelData, data);
+
+    const url = this.buildUrl();
+    return axios[method](url, data).then((resp) => {
+      this.setPristine();
+
+      return resp;
+    });
+  }
 };
 
 export default mixin;

@@ -1,9 +1,7 @@
 import { isEqual } from 'lodash';
 
 class BaseAttribute {
-  constructor({ parent, value }) {
-    this._parent = parent;
-
+  constructor({ value }) {
     constructorValues.call(this, value);
     constructorTriggers.call(this);
   }
@@ -27,7 +25,6 @@ class BaseAttribute {
     if (!isEqual(oldValue, newValue)) {
       this.hasChanged = !isEqual(this.getOriginalValue(), newValue);
       this.isDirty = true;
-      this._parent.isDirty = true;
     }
 
     return this.parse(newValue);

@@ -175,4 +175,146 @@ describe('Http', () => {
       expect(model.attributes.stuff.value).to.equal(data.stuff);
     });
   });
+
+  describe('#isNew', () => {
+    let model, KlassWithAttributes;
+
+    beforeEach(() => {
+      KlassWithAttributes = class extends Klass {
+        static attributes() { return { uid: { primary: true }, stuff: {} }; }
+      };
+    });
+
+    context('when primary is setted', () => {
+      it('should return false', () => {
+        model = new KlassWithAttributes({ uid: Math.random(), stuff: Math.random() });
+        expect(model.isNew()).to.be.false;
+      });
+    });
+
+    context('when primary is not setted', () => {
+      it('should return true', () => {
+        model = new KlassWithAttributes({ stuff: Math.random() });
+        expect(model.isNew()).to.be.true;
+      });
+    });
+  });
+
+  describe('#save', () => {
+    let model, KlassWithAttributes;
+
+    beforeEach(() => {
+      KlassWithAttributes = class extends Klass {
+        static attributes() { return { uid: { primary: true }, attr1: {}, attr2: {}, attr3: {} }; }
+      };
+    });
+
+    context('when passing data', () => {
+      context('when passing an existing attributes', () => {
+        it('should prioritize the passing value', async() => {
+          const modelValue = Math.random();
+          const dataValue = modelValue + 5;
+          const postData = { something: Math.random() };
+          const url = `${urlRoot}/${urlResource}`;
+          httpMock.onPost(url, {
+            attr1: dataValue
+          }).reply(() => {
+            return [200, postData];
+          });
+
+          model = new KlassWithAttributes({ attr1: modelValue });
+          const result = await model.save({ attr1: dataValue });
+
+          expect(result.data).to.deep.equal(postData);
+        });
+      });
+
+      context('when passing a non existing attributes', () => {
+        it('should send the value', async() => {
+          const modelValue = Math.random();
+          const dataValue = modelValue + 5;
+          const postData = { something: Math.random() };
+          const url = `${urlRoot}/${urlResource}`;
+          httpMock.onPost(url, {
+            attr1: modelValue,
+            mew: dataValue
+          }).reply(() => {
+            return [200, postData];
+          });
+
+          model = new KlassWithAttributes({ attr1: modelValue });
+          const result = await model.save({ mew: dataValue });
+
+          expect(result.data).to.deep.equal(postData);
+        });
+      });
+    });
+
+    context('when instance is new', () => {
+      let postData, attr1Value, attr2Value;
+
+      beforeEach(() => {
+        attr1Value = Math.random();
+        attr2Value = Math.random();
+        const url = `${urlRoot}/${urlResource}`;
+        postData = { something: Math.random() };
+        httpMock.onPost(url, {
+          attr1: attr1Value,
+          attr2: attr2Value
+        }).reply(() => {
+          return [200, postData];
+        });
+
+        model = new KlassWithAttributes({ attr1: attr1Value });
+        model.attributes.attr2.value = attr2Value;
+      });
+
+      it('should post data', async() => {
+        const result = await model.save();
+        expect(result.data).to.deep.equal(postData);
+      });
+    });
+
+    context('when instance is not new', () => {
+      let patchData;
+
+      beforeEach(() => {
+        const uidValue = Math.random();
+        const url = `${urlRoot}/${urlResource}/${uidValue}`;
+        patchData = { something: Math.random() };
+
+        const attr1Value = Math.random();
+        const newAttr1Value = attr1Value + 1;
+        const newAttr3Value = Math.random();
+
+        httpMock.onPatch(url, {
+          attr1: newAttr1Value,
+          attr3: newAttr3Value
+        }).reply(() => {
+          return [200, patchData];
+        });
+
+        model = new KlassWithAttributes({
+          uid: uidValue,
+          attr1: attr1Value,
+          attr2: Math.random()
+        });
+
+        model.attributes.attr1.value = newAttr1Value;
+        model.attributes.attr3.value = newAttr3Value;
+      });
+
+      it('should patch data', async() => {
+        const result = await model.save();
+        expect(result.data).to.deep.equal(patchData);
+      });
+
+      it('should set the model pristine again', async() => {
+        await model.save();
+
+        expect(model.hasChanged).to.be.false;
+        expect(model.changes).to.be.empty;
+      });
+    });
+  });
 });

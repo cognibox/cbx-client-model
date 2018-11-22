@@ -25,6 +25,14 @@ class BaseModel {
       this.attributes[key].value = value;
     });
   }
+
+  setPristine() {
+    forEach(this.attributes, (value) => {
+      value.setPristine();
+    });
+
+    this._setChanges({});
+  }
 }
 
 export default BaseModel;
@@ -39,7 +47,7 @@ function buildAttributes({ definitions = {}, properties = {} } = {}) {
   keys.forEach((key) => {
     const definition = definitions[key];
     const value = key in properties ? properties[key] : definition.default;
-    const attribute = new AttributeClass({ parent: this, value: value });
+    const attribute = new AttributeClass({ value: value });
 
     attributes[key] = attribute;
   });
@@ -50,13 +58,19 @@ function buildAttributes({ definitions = {}, properties = {} } = {}) {
 function buildChanges() {
   const attributes = this.attributes;
   let hasChanged = false;
-  const changes = {};
+  let changes = {};
+
+  this._setChanges = (value) => {
+    changes = value;
+    hasChanged = !Object.keys(value);
+  };
 
   Object.keys(attributes).forEach((key) => {
     const attribute = attributes[key];
 
     attribute.onChange(() => {
       if (attribute.hasChanged) {
+        this.isDirty = true;
         changes[key] = { newValue: attribute.value, oldValue: attribute.getOriginalValue() };
       } else {
         delete changes[key];

@@ -210,6 +210,33 @@ describe('Model', () => {
     });
   });
 
+  describe('#setPristine', () => {
+    let model;
+
+    beforeEach(() => {
+      class CustomModel extends Model {
+        static attributes() { return { name: {} }; }
+      }
+
+      model = new CustomModel({ name: Math.random });
+      model.attributes.name.value += 5;
+
+      model.setPristine();
+    });
+
+    it('should set every attributes pristine', () => {
+      expect(model.attributes.name.hasChanged).to.be.false;
+    });
+
+    it('should set changes to an empty object', () => {
+      expect(model.changes).to.deep.equal({});
+    });
+
+    it('should set hasChanged to false', () => {
+      expect(model.hasChanged).to.be.false;
+    });
+  });
+
   context('when overriding attributeClass', () => {
     class CustomAttribute extends Model.attributeClass() {}
     class CustomModel extends Model {
