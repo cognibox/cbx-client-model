@@ -8,12 +8,11 @@ chai.use(sinonChai);
 
 describe('Attribute', () => {
   describe('constructor', () => {
-    let model, parent;
+    let model;
     const originalValue = Math.random();
 
     beforeEach(() => {
-      parent = {};
-      model = new Attribute({ parent: parent, value: originalValue });
+      model = new Attribute({ value: originalValue });
     });
 
     it('should set hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
@@ -22,12 +21,11 @@ describe('Attribute', () => {
   });
 
   describe('set', () => {
-    let model, parent;
+    let model;
     const originalValue = Math.random();
 
     beforeEach(() => {
-      parent = {};
-      model = new Attribute({ parent: parent, value: originalValue });
+      model = new Attribute({ value: originalValue });
     });
 
     describe('when new value is different from old value', () => {
@@ -70,12 +68,11 @@ describe('Attribute', () => {
   });
 
   describe('reset', () => {
-    let model, parent;
+    let model;
     const originalValue = Math.random();
 
     beforeEach(() => {
-      parent = {};
-      model = new Attribute({ parent: parent, value: originalValue });
+      model = new Attribute({ value: originalValue });
       model.value = originalValue + 1;
       model.reset();
     });

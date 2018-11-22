@@ -39,7 +39,7 @@ function buildAttributes({ definitions = {}, properties = {} } = {}) {
   keys.forEach((key) => {
     const definition = definitions[key];
     const value = key in properties ? properties[key] : definition.default;
-    const attribute = new AttributeClass({ parent: this, value: value });
+    const attribute = new AttributeClass({ value: value });
 
     attributes[key] = attribute;
   });

@@ -1,9 +1,7 @@
 import { isEqual } from 'lodash';
 
 class BaseAttribute {
-  constructor({ parent, value }) {
-    this._parent = parent;
-
+  constructor({ value }) {
     constructorValues.call(this, value);
     constructorTriggers.call(this);
   }
