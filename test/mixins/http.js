@@ -230,7 +230,7 @@ describe('Http', () => {
       });
 
       context('when passing a non existing attributes', () => {
-        it('should send the value value', async() => {
+        it('should send the value', async() => {
           const modelValue = Math.random();
           const dataValue = modelValue + 5;
           const postData = { something: Math.random() };
