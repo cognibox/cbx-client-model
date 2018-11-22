@@ -20,6 +20,21 @@ describe('Attribute', () => {
     it('should set isDirty to false', () => { expect(model.isDirty).to.be.false; });
   });
 
+  describe('reset', () => {
+    let model;
+    const originalValue = Math.random();
+
+    beforeEach(() => {
+      model = new Attribute({ value: originalValue });
+      model.value = originalValue + 1;
+      model.reset();
+    });
+
+    it('should set value to originalValue', () => { expect(model.value).to.equal(originalValue); });
+    it('should set hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
+    it('should set isDirty to false', () => { expect(model.isDirty).to.be.false; });
+  });
+
   describe('set', () => {
     let model;
     const originalValue = Math.random();
@@ -67,18 +82,29 @@ describe('Attribute', () => {
     });
   });
 
-  describe('reset', () => {
-    let model;
-    const originalValue = Math.random();
+  describe('setPristine', () => {
+    let model, originalValue, newValue;
 
     beforeEach(() => {
+      originalValue = Math.random();
       model = new Attribute({ value: originalValue });
-      model.value = originalValue + 1;
-      model.reset();
+      newValue = originalValue + 5;
+      model.value = newValue;
     });
 
-    it('should set value to originalValue', () => { expect(model.value).to.equal(originalValue); });
-    it('should set hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
-    it('should set isDirty to false', () => { expect(model.isDirty).to.be.false; });
+    it('should set isDirty to false', () => {
+      model.setPristine();
+      expect(model.isDirty).to.be.false;
+    });
+
+    it('should set hasChanged to false', () => {
+      model.setPristine();
+      expect(model.hasChanged).to.be.false;
+    });
+
+    it('should set originalValue to newValue', () => {
+      model.setPristine();
+      expect(model.getOriginalValue()).to.equal(newValue);
+    });
   });
 });
