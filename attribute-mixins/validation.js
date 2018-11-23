@@ -1,6 +1,14 @@
 import { result } from 'lodash';
 
+class Validator {
+  static required(value) {
+    return value !== undefined;
+  }
+}
+
 const ValidationMixin = (superclass) => class extends superclass {
+  static validatorClass() { return Validator; }
+
   constructor({ value, validations }) {
     super({ value: value });
 
@@ -10,26 +18,46 @@ const ValidationMixin = (superclass) => class extends superclass {
   }
 
   setValue(...args) {
-    const newValue = args[0];
-    super.setValue(...args);
+    const newValue = super.setValue(...args);
     this.validate();
 
     return newValue;
   }
 
-  validate() {
+  validateOne(validationKey) {
+    const validationValue = result(this.validations, validationKey);
+    const validator = this.constructor.validatorClass();
+
+    if (validator[validationKey]) {
+      return validator[validationKey](this.value, validationValue);
+    }
+
+    return true;
+  }
+
+  validateAll() {
     const errors = {};
+    const validationKeys = this.validations ? Object.keys(this.validations) : [];
 
-    if (this.validations && Object.keys(this.validations).length) {
-      if (this.value === undefined) {
-        if (result(this.validations, 'required')) errors.required = true;
+    if (this.validations && validationKeys.length) {
+      const required = this.validateOne('required');
+      if (!required) {
+        if (this.validations.required) errors.required = required;
       } else {
+        const keysToValidate = validationKeys.filter((key) => {
+          return key !== 'required';
+        });
 
+        keysToValidate.forEach((key) => {
+          const validateResult = this.validateOne(key);
+          if (validateResult !== true) {
+            errors[key] = validateResult;
+          }
+        });
       }
     }
 
-    this._setErrors(errors);
-    return this.isValid;
+    return errors;
   }
 };
 
@@ -47,9 +75,11 @@ function buildValidation(validations) {
   let isValid = true;
   let errors = {};
 
-  this._setErrors = (newErrors) => {
-    errors = newErrors;
+  this.validate = () => {
+    errors = this.validateAll();
+
     isValid = !Object.keys(errors).length;
+    return errors;
   };
 
   Object.defineProperty(this, 'isValid', {
