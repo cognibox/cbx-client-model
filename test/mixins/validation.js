@@ -14,150 +14,96 @@ describe('Validation', () => {
       static validatorClass() { return Validator; }
     };
 
+    Validator.customValidation = () => true;
     Model = class extends ModelWithValidation {
       static attributeClass() { return CustomAttributeClass; }
+
+      static attributes() {
+        return {
+          name: {
+            validations: { customValidation: true }
+          }
+        };
+      }
     };
   });
 
-  describe('#validate', () => {
-    let attribute;
+  context('when an attribute is validated', () => {
+    let model;
 
-    context('when validations is not defined', () => {
+    context('when model is initially valid', () => {
       beforeEach(() => {
-        const AttributeClass = Model.attributeClass();
-        attribute = new AttributeClass({ value: 3 });
+        Validator.customValidation = () => true;
+        model = new Model({ name: Math.random() });
       });
 
-      it('should return an empty object', () => {
-        const result = attribute.validate();
-        expect(result).to.deep.equal({});
-      });
-
-      it('should set isValid to true', () => {
-        attribute.validate();
-        expect(attribute.isValid).to.be.true;
-      });
-
-      it('should set errors to empty object', () => {
-        attribute.validate();
-        expect(attribute.errors).to.deep.equal({});
-      });
-    });
-
-    context('when value is not defined', () => {
-      context('when attribute is required', () => {
-        beforeEach(() => {
-          const AttributeClass = Model.attributeClass();
-          attribute = new AttributeClass({ validations: { required: true } });
-        });
-
-        it('should return false', () => {
-          const result = attribute.validate();
-          expect(result).to.deep.equal({ required: false });
-        });
-
-        it('should set isValid to false', () => {
-          attribute.validate();
-          expect(attribute.isValid).to.be.false;
-        });
-
-        it('should add required errors', () => {
-          attribute.validate();
-          expect(attribute.errors).to.deep.equal({ required: false });
-        });
-      });
-
-      context('with custom validations', () => {
-        beforeEach(() => {
-          Validator.failingValidation = () => false;
-          const AttributeClass = Model.attributeClass();
-          attribute = new AttributeClass({ validations: { failingValidation: true } });
-        });
-
-        it('should return an empty object', () => {
-          const result = attribute.validate();
-          expect(result).to.deep.equal({});
-        });
-
-        it('should set isValid to true', () => {
-          attribute.validate();
-          expect(attribute.isValid).to.be.true;
-        });
-
-        it('should set errors to empty object', () => {
-          attribute.validate();
-          expect(attribute.errors).to.deep.equal({});
-        });
-      });
-    });
-
-    context('when value is defined', () => {
-      context('when attribute is required', () => {
-        beforeEach(() => {
-          const AttributeClass = Model.attributeClass();
-          attribute = new AttributeClass({ value: Math.random(), validations: { required: true } });
-        });
-
-        it('should return an empty object', () => {
-          const result = attribute.validate();
-          expect(result).to.deep.equal({});
-        });
-
-        it('should set isValid to true', () => {
-          attribute.validate();
-          expect(attribute.isValid).to.be.true;
-        });
-
-        it('should set errors to empty object', () => {
-          attribute.validate();
-          expect(attribute.errors).to.deep.equal({});
-        });
-      });
-
-      context('with custom validations', () => {
-        context('when validation is succeeding', () => {
+      context('when validating attribute', () => {
+        context('when validation fail', () => {
           beforeEach(() => {
-            Validator.succeedingValidation = () => true;
-            const AttributeClass = Model.attributeClass();
-            attribute = new AttributeClass({ value: true, validations: { succeedingValidation: true } });
-          });
-
-          it('should return an empty object', () => {
-            const result = attribute.validate();
-            expect(result).to.deep.equal({});
-          });
-
-          it('should set isValid to true', () => {
-            attribute.validate();
-            expect(attribute.isValid).to.be.true;
-          });
-
-          it('should set errors to empty object', () => {
-            attribute.validate();
-            expect(attribute.errors).to.deep.equal({});
-          });
-        });
-
-        context('when validation is failing', () => {
-          beforeEach(() => {
-            Validator.failinggValidation = () => false;
-            const AttributeClass = Model.attributeClass();
-            attribute = new AttributeClass({ value: true, validations: { failinggValidation: true } });
-          });
-
-          it('should return object with error', () => {
-            const result = attribute.validate();
-            expect(result).to.deep.equal({ failinggValidation: false });
+            Validator.customValidation = () => false;
+            model.attributes.name.validate();
           });
 
           it('should set isValid to false', () => {
-            attribute.validate();
-            expect(attribute.isValid).to.be.false;
+            expect(model.isValid).to.be.false;
           });
 
-          it('should set errors to empty object', () => {
-            attribute.validate();
-            expect(attribute.errors).to.deep.equal({ failinggValidation: false });
+          it('should set errors', () => {
+            expect(model.errors).to.deep.equal({ name: { customValidation: false } });
+          });
+        });
+
+        context('when validation succeed', () => {
+          beforeEach(() => {
+            Validator.customValidation = () => true;
+            model.attributes.name.validate();
+          });
+
+          it('should set isValid to true', () => {
+            expect(model.isValid).to.be.true;
+          });
+
+          it('should set errors to an empty object', () => {
+            expect(model.errors).to.deep.equal({});
+          });
+        });
+      });
+    });
+
+    context('when model is initially not valid', () => {
+      beforeEach(() => {
+        Validator.customValidation = () => false;
+        model = new Model({ name: Math.random() });
+      });
+
+      context('when validating attribute', () => {
+        context('when validation fail', () => {
+          beforeEach(() => {
+            Validator.customValidation = () => false;
+            model.attributes.name.validate();
+          });
+
+          it('should set isValid to false', () => {
+            expect(model.isValid).to.be.false;
+          });
+
+          it('should set errors', () => {
+            expect(model.errors).to.deep.equal({ name: { customValidation: false } });
+          });
+        });
+
+        context('when validation succeed', () => {
+          beforeEach(() => {
+            Validator.customValidation = () => true;
+            model.attributes.name.validate();
+          });
+
+          it('should set isValid to true', () => {
+            expect(model.isValid).to.be.true;
+          });
+
+          it('should set errors to an empty object', () => {
+            expect(model.errors).to.deep.equal({});
           });
         });
       });

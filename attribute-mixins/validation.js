@@ -9,10 +9,14 @@ class Validator {
 const ValidationMixin = (superclass) => class extends superclass {
   static validatorClass() { return Validator; }
 
-  constructor({ value, validations }) {
+  constructor({ value, validations, autoValidate }) {
     super({ value: value });
 
     buildValidation.call(this, validations);
+
+    if (autoValidate) {
+      this.on('change', () => this.validate());
+    }
 
     this.validate();
   }
@@ -24,7 +28,7 @@ const ValidationMixin = (superclass) => class extends superclass {
     return newValue;
   }
 
-  validateOne(validationKey) {
+  ValidateOneDry(validationKey) {
     const validationValue = result(this.validations, validationKey);
     const validator = this.constructor.validatorClass();
 
@@ -35,12 +39,12 @@ const ValidationMixin = (superclass) => class extends superclass {
     return true;
   }
 
-  validateAll() {
+  validateAllDry() {
     const errors = {};
     const validationKeys = this.validations ? Object.keys(this.validations) : [];
 
     if (this.validations && validationKeys.length) {
-      const required = this.validateOne('required');
+      const required = this.ValidateOneDry('required');
       if (!required) {
         if (this.validations.required) errors.required = required;
       } else {
@@ -49,7 +53,7 @@ const ValidationMixin = (superclass) => class extends superclass {
         });
 
         keysToValidate.forEach((key) => {
-          const validateResult = this.validateOne(key);
+          const validateResult = this.ValidateOneDry(key);
           if (validateResult !== true) {
             errors[key] = validateResult;
           }
@@ -76,9 +80,12 @@ function buildValidation(validations) {
   let errors = {};
 
   this.validate = () => {
-    errors = this.validateAll();
+    errors = this.validateAllDry();
 
     isValid = !Object.keys(errors).length;
+
+    this.trigger('validate');
+
     return errors;
   };
 
