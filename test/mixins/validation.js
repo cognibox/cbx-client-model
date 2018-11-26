@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import BaseModel from '../../base-model.js';
 import ValidationMixin from '../../mixins/validation.js';
 
-describe.only('Validation', () => {
+describe('Validation', () => {
   let Model, Validator;
 
   beforeEach(() => {
