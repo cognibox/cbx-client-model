@@ -19,6 +19,52 @@ describe('Validation', () => {
     };
   });
 
+  context('autoValidate', () => {
+    let attribute;
+
+    context('when autoValidate is false', () => {
+      beforeEach(() => {
+        Validator.customValidation = () => true;
+        const AttributeClass = Model.attributeClass();
+        attribute = new AttributeClass({ value: 3, validations: { customValidation: true }, autoValidate: false });
+      });
+
+      it('should not validate automatically on changes', () => {
+        Validator.customValidation = () => false;
+        attribute.value = 5;
+        expect(attribute.isValid).to.be.true;
+      });
+    });
+
+    context('when autoValidate is true', () => {
+      beforeEach(() => {
+        Validator.customValidation = () => true;
+        const AttributeClass = Model.attributeClass();
+        attribute = new AttributeClass({ value: 3, validations: { customValidation: true }, autoValidate: true });
+      });
+
+      it('should validate automatically on changes', () => {
+        Validator.customValidation = () => false;
+        attribute.value = 5;
+        expect(attribute.isValid).to.be.false;
+      });
+    });
+
+    context('when autoValidate is undefined', () => {
+      beforeEach(() => {
+        Validator.customValidation = () => true;
+        const AttributeClass = Model.attributeClass();
+        attribute = new AttributeClass({ value: 3, validations: { customValidation: true } });
+      });
+
+      it('should validate automatically on changes', () => {
+        Validator.customValidation = () => false;
+        attribute.value = 5;
+        expect(attribute.isValid).to.be.false;
+      });
+    });
+  });
+
   describe('#validate', () => {
     let attribute;
 

@@ -14,18 +14,12 @@ const ValidationMixin = (superclass) => class extends superclass {
 
     buildValidation.call(this, validations);
 
-    if (autoValidate) {
-      this.on('change', () => this.validate());
+    if (autoValidate !== false) {
+      this.on('change', () => {
+        this.validate();
+      });
+      this.validate();
     }
-
-    this.validate();
-  }
-
-  setValue(...args) {
-    const newValue = super.setValue(...args);
-    this.validate();
-
-    return newValue;
   }
 
   ValidateOneDry(validationKey) {
