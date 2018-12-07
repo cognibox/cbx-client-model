@@ -6,7 +6,7 @@ class Validator {
   }
 }
 
-const ValidationMixin = (superclass) => class extends superclass {
+const AttributeValidationMixin = (superclass) => class extends superclass {
   static validatorClass() { return Validator; }
 
   constructor({ value, validations, autoValidate }) {
@@ -59,7 +59,7 @@ const ValidationMixin = (superclass) => class extends superclass {
   }
 };
 
-export default ValidationMixin;
+export default AttributeValidationMixin;
 
 ////////////////
 
@@ -67,7 +67,7 @@ function buildValidation(validations) {
   Object.defineProperty(this, 'validations', {
     enumerable: true,
     get() { return validations; },
-    set() { console.error('[vueModel][ValidationMixin] validations assignation not allowed'); }
+    set() { console.error('[vueModel][AttributeValidationMixin] validations assignation not allowed'); }
   });
 
   let isValid = true;
@@ -86,12 +86,12 @@ function buildValidation(validations) {
   Object.defineProperty(this, 'isValid', {
     enumerable: true,
     get() { return isValid; },
-    set() { console.error('[vueModel][ValidationMixin] isValid assignation not allowed'); }
+    set() { console.error('[vueModel][AttributeValidationMixin] isValid assignation not allowed'); }
   });
 
   Object.defineProperty(this, 'errors', {
     enumerable: true,
     get() { return errors; },
-    set() { console.error('[vueModel][ValidationMixin] errors assignation not allowed'); }
+    set() { console.error('[vueModel][AttributeValidationMixin] errors assignation not allowed'); }
   });
 }

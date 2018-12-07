@@ -76,7 +76,7 @@ describe('Validation', () => {
 
       it('should return an empty object', () => {
         const result = attribute.validate();
-        expect(result).to.deep.equal({});
+        expect(result).to.be.an('object').that.is.empty;
       });
 
       it('should set isValid to true', () => {
@@ -86,7 +86,7 @@ describe('Validation', () => {
 
       it('should set errors to empty object', () => {
         attribute.validate();
-        expect(attribute.errors).to.deep.equal({});
+        expect(attribute.errors).to.be.an('object').that.is.empty;
       });
     });
 
@@ -122,7 +122,7 @@ describe('Validation', () => {
 
         it('should return an empty object', () => {
           const result = attribute.validate();
-          expect(result).to.deep.equal({});
+          expect(result).to.be.an('object').that.is.empty;
         });
 
         it('should set isValid to true', () => {
@@ -132,7 +132,7 @@ describe('Validation', () => {
 
         it('should set errors to empty object', () => {
           attribute.validate();
-          expect(attribute.errors).to.deep.equal({});
+          expect(attribute.errors).to.be.an('object').that.is.empty;
         });
       });
     });
@@ -146,7 +146,7 @@ describe('Validation', () => {
 
         it('should return an empty object', () => {
           const result = attribute.validate();
-          expect(result).to.deep.equal({});
+          expect(result).to.be.an('object').that.is.empty;
         });
 
         it('should set isValid to true', () => {
@@ -156,7 +156,7 @@ describe('Validation', () => {
 
         it('should set errors to empty object', () => {
           attribute.validate();
-          expect(attribute.errors).to.deep.equal({});
+          expect(attribute.errors).to.be.an('object').that.is.empty;
         });
       });
 
@@ -170,7 +170,7 @@ describe('Validation', () => {
 
           it('should return an empty object', () => {
             const result = attribute.validate();
-            expect(result).to.deep.equal({});
+            expect(result).to.be.an('object').that.is.empty;
           });
 
           it('should set isValid to true', () => {
@@ -180,7 +180,7 @@ describe('Validation', () => {
 
           it('should set errors to empty object', () => {
             attribute.validate();
-            expect(attribute.errors).to.deep.equal({});
+            expect(attribute.errors).to.be.an('object').that.is.empty;
           });
         });
 
