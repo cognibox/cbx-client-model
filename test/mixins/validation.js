@@ -64,7 +64,7 @@ describe('Validation', () => {
           });
 
           it('should set errors to an empty object', () => {
-            expect(model.errors).to.deep.equal({});
+            expect(model.errors).to.be.an('object').that.is.empty;
           });
         });
       });
@@ -103,7 +103,7 @@ describe('Validation', () => {
           });
 
           it('should set errors to an empty object', () => {
-            expect(model.errors).to.deep.equal({});
+            expect(model.errors).to.be.an('object').that.is.empty;
           });
         });
       });
