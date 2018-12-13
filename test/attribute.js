@@ -73,7 +73,7 @@ describe('Attribute', () => {
     describe('when listening for changes', () => {
       it('should call listener', () => {
         const callback = sinon.stub();
-        model.onChange(callback);
+        model.on('change', callback);
 
         model.value = originalValue + 1;
 

@@ -44,12 +44,16 @@ function buildAttributes({ definitions = {}, properties = {} } = {}) {
   const attributes = {};
 
   const keys = Object.keys(definitions);
-  keys.forEach((key) => {
-    const definition = definitions[key];
-    const value = key in properties ? properties[key] : definition.default;
-    const attribute = new AttributeClass({ value: value });
+  keys.forEach((attributeName) => {
+    const definition = definitions[attributeName];
+    const attributeArguments = {};
+    Object.keys(definition).forEach((definitionKey) => {
+      if (definitionKey !== 'default') attributeArguments[definitionKey] = definition[definitionKey];
+    });
+    attributeArguments.value = attributeName in properties ? properties[attributeName] : definition.default;
+    const attribute = new AttributeClass(attributeArguments);
 
-    attributes[key] = attribute;
+    attributes[attributeName] = attribute;
   });
 
   return attributes;
@@ -68,7 +72,7 @@ function buildChanges() {
   Object.keys(attributes).forEach((key) => {
     const attribute = attributes[key];
 
-    attribute.onChange(() => {
+    attribute.on('change', () => {
       if (attribute.hasChanged) {
         this.isDirty = true;
         changes[key] = { newValue: attribute.value, oldValue: attribute.getOriginalValue() };

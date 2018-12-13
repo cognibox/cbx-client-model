@@ -46,14 +46,22 @@ function constructorValues(value) {
     get() { return this.getValue(value); },
     set(newValue) {
       value = this.setValue(newValue, value);
-      this.trigger();
+      this.trigger('change');
       return value;
     }
   });
 }
 
 function constructorTriggers() {
-  const onChangeCallbacks = [];
-  this.onChange = (callback) => onChangeCallbacks.push(callback);
-  this.trigger = () => onChangeCallbacks.forEach((callback) => callback.call(this, this.value, this.getOriginalValue()));
+  const eventCallbacks = {};
+
+  this.on = (eventType, callback) => {
+    eventCallbacks[eventType] = eventCallbacks[eventType] || [];
+    eventCallbacks[eventType].push(callback);
+  };
+  this.trigger = (eventType) => {
+    if (!eventCallbacks[eventType]) return;
+
+    eventCallbacks[eventType].forEach((callback) => callback.call(this, this.value, this.getOriginalValue()));
+  };
 }
