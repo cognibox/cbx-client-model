@@ -4,8 +4,12 @@ class BaseAttribute {
   constructor({ parent, value }) {
     this._parent = parent;
 
-    constructorValues.call(this, value);
-    constructorTriggers.call(this);
+    const stuff = constructorValues.call(this, value);
+    constructorTriggers.call(stuff);
+    if (value) stuff.value = value;
+    stuff.setPristine();
+
+    return stuff;
   }
 
   getValue(value) { return value; }
@@ -38,25 +42,36 @@ export default BaseAttribute;
 
 ////////////////
 
-function constructorValues(value) {
+function constructorValues() {
   let originalValue;
   this.getOriginalValue = () => originalValue;
-  this.setOriginalValuePristine = () => { originalValue = value; };
-  this.setPristine();
+  this.setOriginalValuePristine = () => { originalValue = this.value; };
 
-  Object.defineProperty(this, 'value', {
-    enumerable: true,
-    get() { return this.getValue(value); },
-    set(newValue) {
-      value = this.setValue(newValue, value);
-      this.trigger();
-      return value;
+  const stuff = new Proxy(this, {
+    get: (target, property) => {
+      return target[property];
+    },
+    set: (target, property, newValue) => {
+      if (property === 'value') {
+        target[property] = this.setValue(newValue, this.value);
+        this.trigger();
+      } else {
+        target[property] = newValue;
+      }
+
+      return true;
     }
   });
+
+  return stuff;
 }
 
 function constructorTriggers() {
   const onChangeCallbacks = [];
   this.onChange = (callback) => onChangeCallbacks.push(callback);
-  this.trigger = () => onChangeCallbacks.forEach((callback) => callback.call(this, this.value, this.getOriginalValue()));
+  this.trigger = () => {
+    onChangeCallbacks.forEach((callback) => {
+      callback.call(this, this.value, this.getOriginalValue());
+    });
+  };
 }
