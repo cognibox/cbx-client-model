@@ -1,11 +1,9 @@
 import { isEqual } from 'lodash';
 
 class BaseAttribute {
-  constructor({ parent, value }) {
-    this._parent = parent;
-
+  constructor({ value }) {
     const stuff = constructorValues.call(this, value);
-    constructorTriggers.call(stuff);
+    constructorTriggers.call(this);
     if (value) stuff.value = value;
     stuff.setPristine();
 
@@ -31,7 +29,6 @@ class BaseAttribute {
     if (!isEqual(oldValue, newValue)) {
       this.hasChanged = !isEqual(this.getOriginalValue(), newValue);
       this.isDirty = true;
-      this._parent.isDirty = true;
     }
 
     return this.parse(newValue);
@@ -54,7 +51,7 @@ function constructorValues() {
     set: (target, property, newValue) => {
       if (property === 'value') {
         target[property] = this.setValue(newValue, this.value);
-        this.trigger();
+        this.trigger('change');
       } else {
         target[property] = newValue;
       }
@@ -67,11 +64,15 @@ function constructorValues() {
 }
 
 function constructorTriggers() {
-  const onChangeCallbacks = [];
-  this.onChange = (callback) => onChangeCallbacks.push(callback);
-  this.trigger = () => {
-    onChangeCallbacks.forEach((callback) => {
-      callback.call(this, this.value, this.getOriginalValue());
-    });
+  const eventCallbacks = {};
+
+  this.on = (eventType, callback) => {
+    eventCallbacks[eventType] = eventCallbacks[eventType] || [];
+    eventCallbacks[eventType].push(callback);
+  };
+  this.trigger = (eventType) => {
+    if (!eventCallbacks[eventType]) return;
+
+    eventCallbacks[eventType].forEach((callback) => callback.call(this, this.value, this.getOriginalValue()));
   };
 }
