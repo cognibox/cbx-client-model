@@ -44,14 +44,14 @@ function constructorValues() {
   this.getOriginalValue = () => originalValue;
   this.setOriginalValuePristine = () => { originalValue = this.value; };
 
-  const stuff = new Proxy(this, {
+  const proxy = new Proxy(this, {
     get: (target, property) => {
       return target[property];
     },
     set: (target, property, newValue) => {
       if (property === 'value') {
-        target[property] = this.setValue(newValue, this.value);
-        this.trigger('change');
+        target[property] = proxy.setValue(newValue, proxy.value);
+        proxy.trigger('change');
       } else {
         target[property] = newValue;
       }
@@ -60,7 +60,7 @@ function constructorValues() {
     }
   });
 
-  return stuff;
+  return proxy;
 }
 
 function constructorTriggers() {
