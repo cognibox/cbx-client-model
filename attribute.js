@@ -2,7 +2,7 @@ import { isEqual } from 'lodash';
 
 class BaseAttribute {
   constructor({ value }) {
-    const proxy = constructorValues.call(this, value);
+    const proxy = constructorValues.call(this);
     constructorTriggers.call(proxy);
     if (value) proxy.value = value;
     proxy.setPristine();
