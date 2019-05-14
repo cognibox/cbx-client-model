@@ -2,8 +2,12 @@ import { isEqual } from 'lodash';
 
 class BaseAttribute {
   constructor({ value }) {
-    constructorValues.call(this, value);
-    constructorTriggers.call(this);
+    const proxy = constructorValues.call(this);
+    constructorTriggers.call(proxy);
+    if (value) proxy.value = value;
+    proxy.setPristine();
+
+    return proxy;
   }
 
   getValue(value) { return value; }
@@ -35,21 +39,28 @@ export default BaseAttribute;
 
 ////////////////
 
-function constructorValues(value) {
+function constructorValues() {
   let originalValue;
   this.getOriginalValue = () => originalValue;
-  this.setOriginalValuePristine = () => { originalValue = value; };
-  this.setPristine();
+  this.setOriginalValuePristine = () => { originalValue = this.value; };
 
-  Object.defineProperty(this, 'value', {
-    enumerable: true,
-    get() { return this.getValue(value); },
-    set(newValue) {
-      value = this.setValue(newValue, value);
-      this.trigger('change');
-      return value;
+  const proxy = new Proxy(this, {
+    get: (target, property) => {
+      return target[property];
+    },
+    set: (target, property, newValue) => {
+      if (property === 'value') {
+        target[property] = proxy.setValue(newValue, proxy.value);
+        proxy.trigger('change');
+      } else {
+        target[property] = newValue;
+      }
+
+      return true;
     }
   });
+
+  return proxy;
 }
 
 function constructorTriggers() {

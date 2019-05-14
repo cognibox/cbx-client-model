@@ -61,12 +61,12 @@ function buildAttributes({ definitions = {}, properties = {} } = {}) {
 
 function buildChanges() {
   const attributes = this.attributes;
-  let hasChanged = false;
-  let changes = {};
+  this.hasChanged = false;
+  this.changes = {};
 
   this._setChanges = (value) => {
-    changes = value;
-    hasChanged = !Object.keys(value);
+    this.changes = value;
+    this.hasChanged = !Object.keys(value);
   };
 
   Object.keys(attributes).forEach((key) => {
@@ -75,25 +75,13 @@ function buildChanges() {
     attribute.on('change', () => {
       if (attribute.hasChanged) {
         this.isDirty = true;
-        changes[key] = { newValue: attribute.value, oldValue: attribute.getOriginalValue() };
+        this.changes[key] = { newValue: attribute.value, oldValue: attribute.getOriginalValue() };
       } else {
-        delete changes[key];
+        delete this.changes[key];
       }
 
-      hasChanged = computeHasChanged.call(this, changes);
+      this.hasChanged = computeHasChanged.call(this, this.changes);
     });
-  });
-
-  Object.defineProperty(this, 'changes', {
-    enumerable: true,
-    get() { return changes; },
-    set() { console.error('[vueModel] changes assignation not allowed'); }
-  });
-
-  Object.defineProperty(this, 'hasChanged', {
-    enumerable: true,
-    get() { return hasChanged; },
-    set() { console.error('[vueModel] hasChanged assignation not allowed'); }
   });
 }
 
@@ -104,9 +92,5 @@ function computeHasChanged(changes) {
 function defineModelAttributes({ definitions = {}, properties = {} } = {}) {
   const attributes = buildAttributes.call(this, { definitions, properties });
 
-  Object.defineProperty(this, 'attributes', {
-    enumerable: true,
-    get() { return attributes; },
-    set() { console.error('[vueModel] attributes assignation not allowed'); }
-  });
+  this.attributes = attributes;
 }
