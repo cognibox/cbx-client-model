@@ -2,12 +2,12 @@ import { isEqual } from 'lodash';
 
 class BaseAttribute {
   constructor({ value }) {
-    const stuff = constructorValues.call(this, value);
-    constructorTriggers.call(this);
-    if (value) stuff.value = value;
-    stuff.setPristine();
+    const proxy = constructorValues.call(this, value);
+    constructorTriggers.call(proxy);
+    if (value) proxy.value = value;
+    proxy.setPristine();
 
-    return stuff;
+    return proxy;
   }
 
   getValue(value) { return value; }
