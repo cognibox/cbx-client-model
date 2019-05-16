@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import BaseModel from '../../base-model.js';
-import ValidationMixin from '../../mixins/validation.js';
+import BaseModel from '../../lib/base-model.js';
+import ValidationMixin from '../../lib/mixins/validation.js';
 
 describe('Validation', () => {
   let Model, Validator;

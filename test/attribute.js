@@ -1,7 +1,7 @@
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import Attribute from '../attribute.js';
+import Attribute from '../lib/attribute.js';
 
 const expect = chai.expect;
 chai.use(sinonChai);
