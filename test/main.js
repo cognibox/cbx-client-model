@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Model from '../main.js';
+import Model from '../lib/main.js';
 
 describe('Model', () => {
   describe('#constructor', () => {
