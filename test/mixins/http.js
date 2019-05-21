@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { expect } from 'chai';
-import Model from '../../lib/base-model.js';
+import Model from '../../lib/model.js';
 import HttpMixin from '../../lib/mixins/http.js';
 import AxiosMockAdapter from 'axios-mock-adapter';
 

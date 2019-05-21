@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Model from '../lib/base-model.js';
+import Model from '../lib/model.js';
 
 describe('Model', () => {
   describe('#constructor', () => {
@@ -186,7 +186,7 @@ describe('Model', () => {
       });
     });
 
-    context('having a parser defined', () => {
+    context('having an attribute parser defined', () => {
       class CustomModel extends Model {
         static attributes() { return { name: {} }; }
 
@@ -195,7 +195,7 @@ describe('Model', () => {
             properties.name = properties.toParse;
           }
 
-          return properties;
+          return super.parse(properties);
         }
       }
 
