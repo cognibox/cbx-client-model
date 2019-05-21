@@ -1,58 +1,48 @@
 "use strict";
 
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
 
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _getPrototypeOf3 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
 var _validation = _interopRequireDefault(require("../attribute-mixins/validation.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
-
-function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 var ValidationMixin = function ValidationMixin(superclass) {
   return (
     /*#__PURE__*/
     function (_superclass) {
-      _inherits(_class, _superclass);
-
-      _createClass(_class, null, [{
+      (0, _inherits2["default"])(_class, _superclass);
+      (0, _createClass2["default"])(_class, null, [{
         key: "attributeClass",
         value: function attributeClass() {
           return (
             /*#__PURE__*/
             function (_AttributeValidationM) {
-              _inherits(AttributeWithValidation, _AttributeValidationM);
+              (0, _inherits2["default"])(AttributeWithValidation, _AttributeValidationM);
 
               function AttributeWithValidation() {
-                _classCallCheck(this, AttributeWithValidation);
-
-                return _possibleConstructorReturn(this, _getPrototypeOf(AttributeWithValidation).apply(this, arguments));
+                (0, _classCallCheck2["default"])(this, AttributeWithValidation);
+                return (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf3["default"])(AttributeWithValidation).apply(this, arguments));
               }
 
               return AttributeWithValidation;
-            }((0, _validation["default"])(_get(_getPrototypeOf(_class), "attributeClass", this).call(this)))
+            }((0, _validation["default"])((0, _get2["default"])((0, _getPrototypeOf3["default"])(_class), "attributeClass", this).call(this)))
           );
         }
       }]);
@@ -62,13 +52,13 @@ var ValidationMixin = function ValidationMixin(superclass) {
 
         var _this;
 
-        _classCallCheck(this, _class);
+        (0, _classCallCheck2["default"])(this, _class);
 
         for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
           args[_key] = arguments[_key];
         }
 
-        _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(_class)).call.apply(_getPrototypeOf2, [this].concat(args)));
+        _this = (0, _possibleConstructorReturn2["default"])(this, (_getPrototypeOf2 = (0, _getPrototypeOf3["default"])(_class)).call.apply(_getPrototypeOf2, [this].concat(args)));
         var isValid = true;
         var errors = {};
         Object.keys(_this.attributes).forEach(function (key) {
@@ -83,7 +73,7 @@ var ValidationMixin = function ValidationMixin(superclass) {
             isValid = !Object.keys(errors).length;
           });
         });
-        Object.defineProperty(_assertThisInitialized(_this), 'isValid', {
+        Object.defineProperty((0, _assertThisInitialized2["default"])(_this), 'isValid', {
           enumerable: true,
           get: function get() {
             return isValid;
@@ -92,7 +82,7 @@ var ValidationMixin = function ValidationMixin(superclass) {
             console.error('[vueModel][ValidationMixin] isValid assignation not allowed');
           }
         });
-        Object.defineProperty(_assertThisInitialized(_this), 'errors', {
+        Object.defineProperty((0, _assertThisInitialized2["default"])(_this), 'errors', {
           enumerable: true,
           get: function get() {
             return errors;
@@ -104,7 +94,7 @@ var ValidationMixin = function ValidationMixin(superclass) {
         return _this;
       }
 
-      _createClass(_class, [{
+      (0, _createClass2["default"])(_class, [{
         key: "validate",
         value: function validate() {
           var _this2 = this;
@@ -114,7 +104,6 @@ var ValidationMixin = function ValidationMixin(superclass) {
           });
         }
       }]);
-
       return _class;
     }(superclass)
   );

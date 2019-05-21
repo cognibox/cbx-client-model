@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "test": "npm run build && mocha --require @babel/register",
+    "test": "mocha --recursive --require @babel/register",
     "lint": "./node_modules/.bin/eslint lib/**/*.js",
     "build": "babel lib -d dist"
   },
@@ -15,6 +15,8 @@
     "lodash": "^4.17.10"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.0.0-beta.40",
+    "@babel/runtime": "7.0.0-beta.55",
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.4.0",
     "@babel/preset-env": "^7.4.2",
