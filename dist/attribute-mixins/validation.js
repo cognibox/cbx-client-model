@@ -49,16 +49,13 @@ var AttributeValidationMixin = function AttributeValidationMixin(superclass) {
         }
       }]);
 
-      function _class(_ref) {
+      function _class(properties) {
         var _this;
 
-        var value = _ref.value,
-            validations = _ref.validations,
-            autoValidate = _ref.autoValidate;
         (0, _classCallCheck2["default"])(this, _class);
-        _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(_class).call(this, {
-          value: value
-        }));
+        var validations = properties.validations,
+            autoValidate = properties.autoValidate;
+        _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(_class).call(this, properties));
         buildValidation.call((0, _assertThisInitialized2["default"])(_this), validations);
 
         if (autoValidate !== false) {

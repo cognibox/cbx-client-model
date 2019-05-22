@@ -13,20 +13,21 @@ var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/creat
 
 var _lodash = require("lodash");
 
-var BaseAttribute =
+var Attribute =
 /*#__PURE__*/
 function () {
-  function BaseAttribute(_ref) {
+  function Attribute(_ref) {
     var value = _ref.value;
-    (0, _classCallCheck2["default"])(this, BaseAttribute);
+    (0, _classCallCheck2["default"])(this, Attribute);
     var proxy = constructorValues.call(this);
     constructorTriggers.call(proxy);
+    proxy.constructorOptions = arguments[0];
     proxy.value = value;
     proxy.setPristine();
     return proxy;
   }
 
-  (0, _createClass2["default"])(BaseAttribute, [{
+  (0, _createClass2["default"])(Attribute, [{
     key: "getValue",
     value: function getValue(value) {
       return value;
@@ -60,10 +61,10 @@ function () {
       return this.parse(newValue);
     }
   }]);
-  return BaseAttribute;
+  return Attribute;
 }();
 
-var _default = BaseAttribute; ////////////////
+var _default = Attribute; ////////////////
 
 exports["default"] = _default;
 

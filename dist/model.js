@@ -13,12 +13,24 @@ var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/creat
 
 var _attribute = _interopRequireDefault(require("./attribute"));
 
+var _association = _interopRequireDefault(require("./association"));
+
 var _lodash = require("lodash");
 
-var BaseModel =
+var Model =
 /*#__PURE__*/
 function () {
-  (0, _createClass2["default"])(BaseModel, null, [{
+  (0, _createClass2["default"])(Model, null, [{
+    key: "associationClass",
+    value: function associationClass() {
+      return _association["default"];
+    }
+  }, {
+    key: "associations",
+    value: function associations() {
+      return {};
+    }
+  }, {
     key: "attributeClass",
     value: function attributeClass() {
       return _attribute["default"];
@@ -30,20 +42,45 @@ function () {
     }
   }]);
 
-  function BaseModel(properties) {
-    (0, _classCallCheck2["default"])(this, BaseModel);
+  function Model(properties) {
+    (0, _classCallCheck2["default"])(this, Model);
     properties = this.parse(properties);
-    var attributesDefinition = this.constructor.attributes();
-    defineModelAttributes.call(this, {
-      definitions: attributesDefinition,
-      properties: properties
+    buildAttributes.call(this, {
+      properties: properties.attributes
+    });
+    buildAssociations.call(this, {
+      properties: properties.associations
     });
     buildChanges.call(this);
   }
 
-  (0, _createClass2["default"])(BaseModel, [{
+  (0, _createClass2["default"])(Model, [{
     key: "parse",
     value: function parse(properties) {
+      var associationDefinitions = this.constructor.associations();
+      var attributeDefinitions = this.constructor.attributes();
+      var associations = {};
+      var attributes = {};
+      (0, _lodash.forEach)(properties, function (value, key) {
+        if (associationDefinitions[key]) {
+          associations[key] = value;
+        } else if (attributeDefinitions[key]) {
+          attributes[key] = value;
+        }
+      });
+      return {
+        associations: this.parseAssociations(associations),
+        attributes: this.parseAttributes(attributes)
+      };
+    }
+  }, {
+    key: "parseAssociations",
+    value: function parseAssociations(properties) {
+      return properties;
+    }
+  }, {
+    key: "parseAttributes",
+    value: function parseAttributes(properties) {
       return properties;
     }
   }, {
@@ -52,9 +89,13 @@ function () {
       var _this = this;
 
       properties = this.parse(properties);
-      (0, _lodash.forEach)(properties, function (value, key) {
+      (0, _lodash.forEach)(properties.attributes, function (value, key) {
         if (!_this.attributes[key]) return;
         _this.attributes[key].value = value;
+      });
+      (0, _lodash.forEach)(properties.associations, function (value, key) {
+        if (!_this.associations[key]) return;
+        _this.associations[key].value = value;
       });
     }
   }, {
@@ -67,20 +108,41 @@ function () {
       this._setChanges({});
     }
   }]);
-  return BaseModel;
+  return Model;
 }();
 
-var _default = BaseModel; ////////////////
+var _default = Model; ////////////////
 
 exports["default"] = _default;
 
-function buildAttributes() {
+function buildAssociations() {
   var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      _ref$definitions = _ref.definitions,
-      definitions = _ref$definitions === void 0 ? {} : _ref$definitions,
       _ref$properties = _ref.properties,
       properties = _ref$properties === void 0 ? {} : _ref$properties;
 
+  var definitions = this.constructor.associations();
+  var AssociationClass = this.constructor.associationClass();
+  var associations = {};
+  var keys = Object.keys(definitions);
+  keys.forEach(function (attributeName) {
+    var definition = definitions[attributeName];
+    var associationArguments = {};
+    Object.keys(definition).forEach(function (definitionKey) {
+      if (definitionKey !== 'default') associationArguments[definitionKey] = definition[definitionKey];
+    });
+    associationArguments.value = attributeName in properties ? properties[attributeName] : definition["default"];
+    var attribute = new AssociationClass(associationArguments);
+    associations[attributeName] = attribute;
+  });
+  this.associations = associations;
+}
+
+function buildAttributes() {
+  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref2$properties = _ref2.properties,
+      properties = _ref2$properties === void 0 ? {} : _ref2$properties;
+
+  var definitions = this.constructor.attributes();
   var AttributeClass = this.constructor.attributeClass();
   var attributes = {};
   var keys = Object.keys(definitions);
@@ -94,7 +156,7 @@ function buildAttributes() {
     var attribute = new AttributeClass(attributeArguments);
     attributes[attributeName] = attribute;
   });
-  return attributes;
+  this.attributes = attributes;
 }
 
 function buildChanges() {
@@ -129,18 +191,4 @@ function buildChanges() {
 
 function computeHasChanged(changes) {
   return Object.keys(changes).length > 0;
-}
-
-function defineModelAttributes() {
-  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      _ref2$definitions = _ref2.definitions,
-      definitions = _ref2$definitions === void 0 ? {} : _ref2$definitions,
-      _ref2$properties = _ref2.properties,
-      properties = _ref2$properties === void 0 ? {} : _ref2$properties;
-
-  var attributes = buildAttributes.call(this, {
-    definitions: definitions,
-    properties: properties
-  });
-  this.attributes = attributes;
 }
