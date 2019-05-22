@@ -69,6 +69,21 @@ describe('Model', () => {
       });
     });
 
+    context('when changed', () => {
+      it('should return true', () => {
+        const defaultValue = Math.random();
+        class CustomModel extends Model {
+          static attributes() { return { element: { default: defaultValue } }; }
+        }
+
+        const customInstance = new CustomModel();
+
+        customInstance.attributes.element.value = defaultValue + 1;
+
+        expect(customInstance.hasChanged).to.be.true;
+      });
+    });
+
     context('model having multiple attributes', () => {
       let customInstance;
       const firstAttributeValue = Math.random();
@@ -248,6 +263,22 @@ describe('Model', () => {
       it('should initialize attributes using the new class', () => {
         const customModel = new CustomModel();
         expect(customModel.attributes.name).to.be.an.instanceof(CustomAttribute);
+      });
+    });
+  });
+
+  context('when overriding associationClass', () => {
+    class CustomAssociationClass extends Model.associationClass() {}
+    class AssociationModelClass {}
+    class CustomModel extends Model {
+      static associationClass() { return CustomAssociationClass; }
+      static associations() { return { something: { type: 'belongsTo', class: AssociationModelClass } }; }
+    }
+
+    describe('when initializing', () => {
+      it('should initialize associations using the new class', () => {
+        const customModel = new CustomModel();
+        expect(customModel.associations.something).to.be.an.instanceof(CustomAssociationClass);
       });
     });
   });
