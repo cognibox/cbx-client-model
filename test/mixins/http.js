@@ -355,4 +355,49 @@ describe('Http', () => {
       expect(model.associations.element.value.attributes.stuff.value).to.equal(data.stuff);
     });
   });
+
+  context('for associations', () => {
+    describe('#buildUrl', () => {
+      let ModelClass, AssociationUrlRessource;
+
+      beforeEach(() => {
+        AssociationUrlRessource = Math.random().toString();
+
+        Klass = class extends HttpMixin(Model) {
+          static urlRoot() { return urlRoot; }
+
+          static urlResource() { return urlResource; }
+        };
+
+        const AssociationModelClass = class extends Klass {
+          static attributes() {
+            return { id: {} };
+          }
+
+          static urlResource() { return AssociationUrlRessource; }
+        };
+
+        ModelClass = class extends Klass {
+          static attributes() {
+            return { id: {} };
+          }
+
+          static associations() {
+            return {
+              element: { type: 'hasOne', class: AssociationModelClass }
+            };
+          }
+        };
+      });
+
+      it('should use parent url as root url', () => {
+        const id = Math.random().toString();
+        const model = new ModelClass({ id: id });
+
+        const association = model.associations.element.value;
+
+        expect(association.buildUrl()).to.equal(`${model.buildUrl()}/${AssociationUrlRessource}`);
+      });
+    });
+  });
 });
