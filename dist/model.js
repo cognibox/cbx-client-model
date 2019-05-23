@@ -55,6 +55,24 @@ function () {
   }
 
   (0, _createClass2["default"])(Model, [{
+    key: "asssociationArguments",
+    value: function asssociationArguments() {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return _attributeArguments.call.apply(_attributeArguments, [this].concat(args));
+    }
+  }, {
+    key: "attributeArguments",
+    value: function attributeArguments() {
+      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      return _attributeArguments.call.apply(_attributeArguments, [this].concat(args));
+    }
+  }, {
     key: "parse",
     value: function parse(properties) {
       var associationDefinitions = this.constructor.associations();
@@ -115,32 +133,51 @@ var _default = Model; ////////////////
 
 exports["default"] = _default;
 
-function buildAssociations() {
+function _attributeArguments() {
   var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      _ref$properties = _ref.properties,
-      properties = _ref$properties === void 0 ? {} : _ref$properties;
+      value = _ref.value,
+      _ref$definition = _ref.definition,
+      definition = _ref$definition === void 0 ? {} : _ref$definition;
+
+  var args = {};
+  Object.keys(definition).forEach(function (definitionKey) {
+    if (definitionKey !== 'default') args[definitionKey] = definition[definitionKey];
+  });
+  args.value = value;
+  return args;
+}
+
+function buildAssociations() {
+  var _this2 = this;
+
+  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref2$properties = _ref2.properties,
+      properties = _ref2$properties === void 0 ? {} : _ref2$properties;
 
   var definitions = this.constructor.associations();
   var AssociationClass = this.constructor.associationClass();
   var associations = {};
   var keys = Object.keys(definitions);
-  keys.forEach(function (attributeName) {
-    var definition = definitions[attributeName];
-    var associationArguments = {};
-    Object.keys(definition).forEach(function (definitionKey) {
-      if (definitionKey !== 'default') associationArguments[definitionKey] = definition[definitionKey];
+  keys.forEach(function (associationName) {
+    var definition = definitions[associationName];
+
+    var associationArguments = _this2.asssociationArguments({
+      definition: definition,
+      value: associationName in properties ? properties[associationName] : definition["default"]
     });
-    associationArguments.value = attributeName in properties ? properties[attributeName] : definition["default"];
+
     var attribute = new AssociationClass(associationArguments);
-    associations[attributeName] = attribute;
+    associations[associationName] = attribute;
   });
   this.associations = associations;
 }
 
 function buildAttributes() {
-  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      _ref2$properties = _ref2.properties,
-      properties = _ref2$properties === void 0 ? {} : _ref2$properties;
+  var _this3 = this;
+
+  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref3$properties = _ref3.properties,
+      properties = _ref3$properties === void 0 ? {} : _ref3$properties;
 
   var definitions = this.constructor.attributes();
   var AttributeClass = this.constructor.attributeClass();
@@ -148,43 +185,44 @@ function buildAttributes() {
   var keys = Object.keys(definitions);
   keys.forEach(function (attributeName) {
     var definition = definitions[attributeName];
-    var attributeArguments = {};
-    Object.keys(definition).forEach(function (definitionKey) {
-      if (definitionKey !== 'default') attributeArguments[definitionKey] = definition[definitionKey];
+
+    var args = _this3.attributeArguments({
+      definition: definition,
+      value: attributeName in properties ? properties[attributeName] : definition["default"]
     });
-    attributeArguments.value = attributeName in properties ? properties[attributeName] : definition["default"];
-    var attribute = new AttributeClass(attributeArguments);
+
+    var attribute = new AttributeClass(args);
     attributes[attributeName] = attribute;
   });
   this.attributes = attributes;
 }
 
 function buildChanges() {
-  var _this2 = this;
+  var _this4 = this;
 
   var attributes = this.attributes;
   this.hasChanged = false;
   this.changes = {};
 
   this._setChanges = function (value) {
-    _this2.changes = value;
-    _this2.hasChanged = !Object.keys(value);
+    _this4.changes = value;
+    _this4.hasChanged = !Object.keys(value);
   };
 
   Object.keys(attributes).forEach(function (key) {
     var attribute = attributes[key];
     attribute.on('change', function () {
       if (attribute.hasChanged) {
-        _this2.isDirty = true;
-        _this2.changes[key] = {
+        _this4.isDirty = true;
+        _this4.changes[key] = {
           newValue: attribute.value,
           oldValue: attribute.getOriginalValue()
         };
       } else {
-        delete _this2.changes[key];
+        delete _this4.changes[key];
       }
 
-      _this2.hasChanged = computeHasChanged.call(_this2, _this2.changes);
+      _this4.hasChanged = computeHasChanged.call(_this4, _this4.changes);
     });
   });
 }
