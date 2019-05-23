@@ -7,6 +7,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
+var _construct2 = _interopRequireDefault(require("@babel/runtime/helpers/construct"));
+
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
@@ -31,8 +33,12 @@ function (_Attribute) {
 
   (0, _createClass2["default"])(Association, [{
     key: "instantiate",
-    value: function instantiate(value) {
-      return new (this.modelClass())(value);
+    value: function instantiate() {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return (0, _construct2["default"])(this.modelClass(), args);
     }
   }, {
     key: "modelClass",
@@ -42,40 +48,40 @@ function (_Attribute) {
     }
   }, {
     key: "parse",
-    value: function parse(value) {
+    value: function parse(properties) {
       if (this.constructorOptions.type === 'hasOne') {
-        return this.parseHasOne(value);
+        return this.parseHasOne(properties);
       } else if (this.constructorOptions.type === 'hasMany') {
-        return this.parseHasMany(value);
+        return this.parseHasMany(properties);
       } else if (this.constructorOptions.type === 'belongsTo') {
-        return this.parseBelongsTo(value);
+        return this.parseBelongsTo(properties);
       }
 
-      return value;
+      return properties;
     }
   }, {
     key: "parseSingle",
-    value: function parseSingle(value) {
-      if (value instanceof this.modelClass()) {
-        return value;
+    value: function parseSingle(properties) {
+      if (properties instanceof this.modelClass()) {
+        return properties;
       }
 
-      return this.instantiate(value);
+      return this.instantiate(properties);
     }
   }, {
     key: "parseHasOne",
-    value: function parseHasOne(value) {
-      return this.parseSingle(value);
+    value: function parseHasOne(properties) {
+      return this.parseSingle(properties);
     }
   }, {
     key: "parseHasMany",
-    value: function parseHasMany(value) {
-      return value;
+    value: function parseHasMany(properties) {
+      return properties;
     }
   }, {
     key: "parseBelongsTo",
-    value: function parseBelongsTo(value) {
-      return this.parseSingle(value);
+    value: function parseBelongsTo(properties) {
+      return this.parseSingle(properties);
     }
   }, {
     key: "loadClass",
