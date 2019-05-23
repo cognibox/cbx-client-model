@@ -317,4 +317,42 @@ describe('Http', () => {
       });
     });
   });
+
+  describe('#association#fetch', () => {
+    let AssociationClass, associationUrlRessource, ClassWithAssociations, data, id, model;
+
+    beforeEach(() => {
+      associationUrlRessource = Math.random().toString();
+      AssociationClass = class extends Klass {
+        static attributes() { return { id: {}, stuff: {} }; }
+
+        static urlResource() { return associationUrlRessource; }
+      };
+
+      id = Math.random();
+      const associationUrl = `${urlRoot}/${urlResource}/${id}/${associationUrlRessource}`;
+      data = {
+        stuff: Math.random()
+      };
+
+      ClassWithAssociations = class extends Klass {
+        static attributes() { return { id: {} }; }
+
+        static associations() {
+          return {
+            element: { type: 'hasOne', class: AssociationClass }
+          };
+        }
+      };
+
+      model = new ClassWithAssociations({ id: id });
+
+      httpMock.onGet(associationUrl).reply(200, data);
+    });
+
+    it('should set association model properties', async() => {
+      await model.associations.element.fetch();
+      expect(model.associations.element.value.attributes.stuff.value).to.equal(data.stuff);
+    });
+  });
 });
