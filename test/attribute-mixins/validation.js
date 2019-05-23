@@ -1,12 +1,12 @@
 import { expect } from 'chai';
-import BaseModel from '../../lib/base-model.js';
+import Model from '../../lib/model.js';
 import ValidationMixin from '../../lib/mixins/validation.js';
 
 describe('Validation', () => {
-  let Model, Validator;
+  let CustomModel, Validator;
 
   beforeEach(() => {
-    const ModelWithValidation = ValidationMixin(BaseModel);
+    const ModelWithValidation = ValidationMixin(Model);
     const AttributeClass = ModelWithValidation.attributeClass();
     Validator = class extends AttributeClass.validatorClass() {};
 
@@ -14,7 +14,7 @@ describe('Validation', () => {
       static validatorClass() { return Validator; }
     };
 
-    Model = class extends ModelWithValidation {
+    CustomModel = class extends ModelWithValidation {
       static attributeClass() { return CustomAttributeClass; }
     };
   });
@@ -25,7 +25,7 @@ describe('Validation', () => {
     context('when autoValidate is false', () => {
       beforeEach(() => {
         Validator.customValidation = () => true;
-        const AttributeClass = Model.attributeClass();
+        const AttributeClass = CustomModel.attributeClass();
         attribute = new AttributeClass({ value: 3, validations: { customValidation: true }, autoValidate: false });
       });
 
@@ -39,7 +39,7 @@ describe('Validation', () => {
     context('when autoValidate is true', () => {
       beforeEach(() => {
         Validator.customValidation = () => true;
-        const AttributeClass = Model.attributeClass();
+        const AttributeClass = CustomModel.attributeClass();
         attribute = new AttributeClass({ value: 3, validations: { customValidation: true }, autoValidate: true });
       });
 
@@ -53,7 +53,7 @@ describe('Validation', () => {
     context('when autoValidate is undefined', () => {
       beforeEach(() => {
         Validator.customValidation = () => true;
-        const AttributeClass = Model.attributeClass();
+        const AttributeClass = CustomModel.attributeClass();
         attribute = new AttributeClass({ value: 3, validations: { customValidation: true } });
       });
 
@@ -70,7 +70,7 @@ describe('Validation', () => {
 
     context('when validations is not defined', () => {
       beforeEach(() => {
-        const AttributeClass = Model.attributeClass();
+        const AttributeClass = CustomModel.attributeClass();
         attribute = new AttributeClass({ value: 3 });
       });
 
@@ -93,7 +93,7 @@ describe('Validation', () => {
     context('when value is not defined', () => {
       context('when attribute is required', () => {
         beforeEach(() => {
-          const AttributeClass = Model.attributeClass();
+          const AttributeClass = CustomModel.attributeClass();
           attribute = new AttributeClass({ validations: { required: true } });
         });
 
@@ -116,7 +116,7 @@ describe('Validation', () => {
       context('with custom validations', () => {
         beforeEach(() => {
           Validator.failingValidation = () => false;
-          const AttributeClass = Model.attributeClass();
+          const AttributeClass = CustomModel.attributeClass();
           attribute = new AttributeClass({ validations: { failingValidation: true } });
         });
 
@@ -140,7 +140,7 @@ describe('Validation', () => {
     context('when value is defined', () => {
       context('when attribute is required', () => {
         beforeEach(() => {
-          const AttributeClass = Model.attributeClass();
+          const AttributeClass = CustomModel.attributeClass();
           attribute = new AttributeClass({ value: Math.random(), validations: { required: true } });
         });
 
@@ -164,7 +164,7 @@ describe('Validation', () => {
         context('when validation is succeeding', () => {
           beforeEach(() => {
             Validator.succeedingValidation = () => true;
-            const AttributeClass = Model.attributeClass();
+            const AttributeClass = CustomModel.attributeClass();
             attribute = new AttributeClass({ value: true, validations: { succeedingValidation: true } });
           });
 
@@ -187,7 +187,7 @@ describe('Validation', () => {
         context('when validation is failing', () => {
           beforeEach(() => {
             Validator.failinggValidation = () => false;
-            const AttributeClass = Model.attributeClass();
+            const AttributeClass = CustomModel.attributeClass();
             attribute = new AttributeClass({ value: true, validations: { failinggValidation: true } });
           });
 

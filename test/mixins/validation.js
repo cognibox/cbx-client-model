@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import BaseModel from '../../lib/base-model.js';
+import BaseModel from '../../lib/model.js';
 import ValidationMixin from '../../lib/mixins/validation.js';
 
 describe('Validation', () => {
