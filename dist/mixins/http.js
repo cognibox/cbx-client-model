@@ -17,9 +17,13 @@ var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime
 
 var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
+var _get3 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 
 var _axios = _interopRequireDefault(require("axios"));
+
+var _http = _interopRequireDefault(require("../association-mixins/http.js"));
 
 var mixin = function mixin(superclass) {
   return (
@@ -33,6 +37,20 @@ var mixin = function mixin(superclass) {
       }
 
       (0, _createClass2["default"])(_class, [{
+        key: "asssociationArguments",
+        value: function asssociationArguments() {
+          var _get2;
+
+          for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+
+          var associationArguments = (_get2 = (0, _get3["default"])((0, _getPrototypeOf2["default"])(_class.prototype), "asssociationArguments", this)).call.apply(_get2, [this].concat(args));
+
+          associationArguments.baseUrl = this.buildUrl();
+          return associationArguments;
+        }
+      }, {
         key: "buildUrl",
         value: function buildUrl() {
           return this.constructor.buildUrl(this.getPrimaryAttribute().value);
@@ -92,6 +110,23 @@ var mixin = function mixin(superclass) {
           });
         }
       }], [{
+        key: "associationClass",
+        value: function associationClass() {
+          return (
+            /*#__PURE__*/
+            function (_AssociationHttpMixin) {
+              (0, _inherits2["default"])(AssociationWithHttp, _AssociationHttpMixin);
+
+              function AssociationWithHttp() {
+                (0, _classCallCheck2["default"])(this, AssociationWithHttp);
+                return (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(AssociationWithHttp).apply(this, arguments));
+              }
+
+              return AssociationWithHttp;
+            }((0, _http["default"])((0, _get3["default"])((0, _getPrototypeOf2["default"])(_class), "associationClass", this).call(this)))
+          );
+        }
+      }, {
         key: "urlResource",
         value: function urlResource() {}
       }, {
