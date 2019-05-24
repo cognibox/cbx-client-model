@@ -269,7 +269,7 @@ describe('Model', () => {
 
   context('when overriding associationClass', () => {
     class CustomAssociationClass extends Model.associationClass() {}
-    class AssociationModelClass {}
+    class AssociationModelClass extends Model {}
     class CustomModel extends Model {
       static associationClass() { return CustomAssociationClass; }
       static associations() { return { something: { type: 'belongsTo', class: AssociationModelClass } }; }
