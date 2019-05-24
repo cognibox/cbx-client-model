@@ -230,7 +230,7 @@ function buildChanges() {
         _this4.isDirty = true;
         _this4.changes[key] = {
           newValue: attribute.value,
-          oldValue: attribute.getOriginalValue()
+          oldValue: attribute.originalValue
         };
       } else {
         delete _this4.changes[key];

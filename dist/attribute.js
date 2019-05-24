@@ -17,6 +17,8 @@ var Attribute =
 /*#__PURE__*/
 function () {
   function Attribute(_ref) {
+    var _this = this;
+
     var value = _ref.value;
     (0, _classCallCheck2["default"])(this, Attribute);
     var proxy = constructorValues.call(this);
@@ -24,10 +26,22 @@ function () {
     proxy.constructorOptions = arguments[0];
     proxy.value = value;
     proxy.setPristine();
+    proxy.on('change', function () {
+      proxy.computeHasChanged();
+
+      if (_this.hasChanged) {
+        _this.isDirty = true;
+      }
+    });
     return proxy;
   }
 
   (0, _createClass2["default"])(Attribute, [{
+    key: "computeHasChanged",
+    value: function computeHasChanged() {
+      this.hasChanged = !(0, _lodash.isEqual)(this.originalValue, this.value);
+    }
+  }, {
     key: "getValue",
     value: function getValue(value) {
       return value;
@@ -40,24 +54,19 @@ function () {
   }, {
     key: "reset",
     value: function reset() {
-      this.value = this.getOriginalValue();
+      this.value = this.originalValue;
       this.setPristine();
     }
   }, {
     key: "setPristine",
     value: function setPristine() {
-      this.setOriginalValuePristine();
+      this.originalValue = this.value;
       this.isDirty = false;
       this.hasChanged = false;
     }
   }, {
     key: "setValue",
-    value: function setValue(newValue, oldValue) {
-      if (!(0, _lodash.isEqual)(oldValue, newValue)) {
-        this.hasChanged = !(0, _lodash.isEqual)(this.getOriginalValue(), newValue);
-        this.isDirty = true;
-      }
-
+    value: function setValue(newValue) {
       return this.parse(newValue);
     }
   }]);
@@ -69,18 +78,6 @@ var _default = Attribute; ////////////////
 exports["default"] = _default;
 
 function constructorValues() {
-  var _this = this;
-
-  var originalValue;
-
-  this.getOriginalValue = function () {
-    return originalValue;
-  };
-
-  this.setOriginalValuePristine = function () {
-    originalValue = _this.value;
-  };
-
   var proxy = new Proxy(this, {
     get: function get(target, property) {
       return target[property];
@@ -112,7 +109,7 @@ function constructorTriggers() {
   this.trigger = function (eventType) {
     if (!eventCallbacks[eventType]) return;
     eventCallbacks[eventType].forEach(function (callback) {
-      return callback.call(_this2, _this2.value, _this2.getOriginalValue());
+      return callback.call(_this2, _this2.value, _this2.originalValue);
     });
   };
 }

@@ -17,9 +17,13 @@ var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime
 
 var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
+var _get2 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
+
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 
 var _attribute = _interopRequireDefault(require("./attribute"));
+
+var _lodash = require("lodash");
 
 var Association =
 /*#__PURE__*/
@@ -32,6 +36,21 @@ function (_Attribute) {
   }
 
   (0, _createClass2["default"])(Association, [{
+    key: "computeHasChanged",
+    value: function computeHasChanged() {
+      (0, _get2["default"])((0, _getPrototypeOf2["default"])(Association.prototype), "computeHasChanged", this).call(this);
+      this.hasChanged = this.hasChanged || !!(0, _lodash.xor)(this.originalPrimaryKeys, this.getPrimaryKeys()).length;
+    }
+  }, {
+    key: "getPrimaryKeys",
+    value: function getPrimaryKeys() {
+      if (!this.value || this.constructorOptions.type !== 'hasMany') return;
+      var primaryKey = this.modelClass().getPrimaryKey();
+      return this.value.map(function (instance) {
+        return instance.attributes[primaryKey].value;
+      });
+    }
+  }, {
     key: "instantiate",
     value: function instantiate() {
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -83,7 +102,21 @@ function (_Attribute) {
       properties.forEach(function (property) {
         parsedProperties.push(_this.parseSingle(property));
       });
-      return parsedProperties;
+      var proxy = new Proxy(parsedProperties, {
+        get: function get(target, property) {
+          return target[property];
+        },
+        set: function set(target, property, newValue) {
+          target[property] = newValue;
+
+          if (property === 'length') {
+            _this.trigger('change');
+          }
+
+          return true;
+        }
+      });
+      return proxy;
     }
   }, {
     key: "parseBelongsTo",
@@ -94,6 +127,12 @@ function (_Attribute) {
     key: "loadClass",
     value: function loadClass(classToLoad) {
       return classToLoad;
+    }
+  }, {
+    key: "setPristine",
+    value: function setPristine() {
+      (0, _get2["default"])((0, _getPrototypeOf2["default"])(Association.prototype), "setPristine", this).call(this);
+      this.originalPrimaryKeys = this.getPrimaryKeys();
     }
   }]);
   return Association;
