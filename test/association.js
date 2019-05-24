@@ -61,6 +61,34 @@ describe('Association', () => {
           });
         });
       });
+
+      context('when type is hasMany', () => {
+        beforeEach(() => { type = 'hasMany'; });
+
+        context('when values are instance of the association class', () => {
+          it('should set the value', () => {
+            const values = [Math.random(), Math.random()];
+            const instances = values.map((value) => {
+              return new CustomClass(value);
+            });
+            const association = new Association({ value: instances, type: type, class: CustomClass });
+
+            expect(association.value.map((v) => v.value)).to.deep.equal(values);
+          });
+        });
+
+        context('when values are not instance of the association class', () => {
+          it('should set the value to an instance of the association class', () => {
+            const values = [Math.random(), Math.random()];
+            const association = new Association({ value: values, type: type, class: CustomClass });
+
+            association.value.forEach((instance, index) => {
+              expect(association.value[index]).to.be.instanceof(CustomClass);
+              expect(association.value[index].value).to.equal(instance.value);
+            });
+          });
+        });
+      });
     });
   });
 });
