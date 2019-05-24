@@ -15,8 +15,6 @@ var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _get3 = _interopRequireDefault(require("@babel/runtime/helpers/get"));
-
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 
 var _getPrototypeOf3 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
@@ -64,6 +62,16 @@ var mixin = function mixin(superclass) {
           }).join('/');
         }
       }, {
+        key: "decode",
+        value: function decode(properties) {
+          return properties;
+        }
+      }, {
+        key: "encode",
+        value: function encode(properties) {
+          return properties;
+        }
+      }, {
         key: "fetchAll",
         value: function fetchAll() {
           var _this2 = this;
@@ -74,7 +82,7 @@ var mixin = function mixin(superclass) {
               data: resp.data
             } : resp.data;
             result.models = result.data.map(function (item) {
-              return new _this2(item);
+              return new _this2(_this2.decode(item));
             });
             return result;
           });
@@ -149,7 +157,7 @@ var mixin = function mixin(superclass) {
 
           var url = this.buildUrl();
           return _axios["default"].get(url).then(function (resp) {
-            _this3.set(resp.data);
+            _this3.set(_this3.constructor.decode(resp.data));
 
             return resp;
           });
@@ -189,6 +197,7 @@ var mixin = function mixin(superclass) {
           }
 
           data = Object.assign(modelData, data);
+          data = this.constructor.encode(data);
           var url = this.buildUrl();
           return _axios["default"][method](url, data).then(function (resp) {
             _this4.setPristine();
