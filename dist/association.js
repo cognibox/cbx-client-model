@@ -76,7 +76,14 @@ function (_Attribute) {
   }, {
     key: "parseHasMany",
     value: function parseHasMany(properties) {
-      return properties;
+      var _this = this;
+
+      if (!Array.isArray(properties)) return;
+      var parsedProperties = [];
+      properties.forEach(function (property) {
+        parsedProperties.push(_this.parseSingle(property));
+      });
+      return parsedProperties;
     }
   }, {
     key: "parseBelongsTo",
