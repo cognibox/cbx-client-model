@@ -40,6 +40,20 @@ function () {
     value: function attributes() {
       return {};
     }
+  }, {
+    key: "findPrimaryKey",
+    value: function findPrimaryKey() {
+      var attributes = this.attributes();
+      return Object.keys(attributes).find(function (key) {
+        return attributes[key].primary;
+      });
+    }
+  }, {
+    key: "getPrimaryKey",
+    value: function getPrimaryKey() {
+      this._primaryKey = this._primaryKey || this.findPrimaryKey() || 'id';
+      return this._primaryKey;
+    }
   }]);
 
   function Model(properties) {
