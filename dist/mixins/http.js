@@ -73,11 +73,11 @@ var mixin = function mixin(superclass) {
         }
       }, {
         key: "fetchAll",
-        value: function fetchAll() {
+        value: function fetchAll(options) {
           var _this2 = this;
 
           var url = this.buildUrl();
-          return _axios["default"].get(url).then(function (resp) {
+          return _axios["default"].get(url, options).then(function (resp) {
             var result = Array.isArray(resp.data) ? {
               data: resp.data
             } : resp.data;
