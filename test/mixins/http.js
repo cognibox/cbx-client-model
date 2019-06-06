@@ -27,7 +27,13 @@ describe('Http', () => {
   });
 
   describe('.fetchAll', () => {
-    let KlassWithAttributes, KlassWithDecoder, url, data;
+    let KlassWithAttributes, KlassWithDecoder, url, data, httpOptions;
+
+    function configureHttpMock() {
+      httpMock.onGet(url, httpOptions).reply(() => {
+        return [200, data];
+      });
+    }
 
     beforeEach(() => {
       url = `${urlRoot}/${urlResource}`;
@@ -36,13 +42,11 @@ describe('Http', () => {
       KlassWithAttributes = class extends Klass {
         static attributes() { return { id: {}, stuff: {} }; }
       };
-
-      httpMock.onGet(url).reply(() => {
-        return [200, data];
-      });
     });
 
     context('when data is an array', () => {
+      beforeEach(() => { configureHttpMock() });
+
       it('should convert data to instances', async() => {
         data = [{}];
         const result = await KlassWithAttributes.fetchAll();
@@ -57,6 +61,8 @@ describe('Http', () => {
     });
 
     context('when data is an object', () => {
+      beforeEach(() => { configureHttpMock() });
+
       it('should convert data to instances', async() => {
         data = { data: [{}] };
         const result = await KlassWithAttributes.fetchAll();
@@ -82,6 +88,8 @@ describe('Http', () => {
     });
 
     context('when given a custom decode function', () => {
+      beforeEach(() => { configureHttpMock() });
+
       before(() => {
         KlassWithDecoder = class extends KlassWithAttributes {
           static decode(properties) {
@@ -96,6 +104,18 @@ describe('Http', () => {
         const model = result.models[0];
         expect(model.attributes.id.value).to.eq(data[0].uid);
         expect(model.attributes.stuff.value).to.eq(data[0].things);
+      });
+    });
+
+    context('when passing parameters', () => {
+      it('should retrieve data using params', async() => {
+        httpOptions = { params: { stuff: Math.random() }};
+        configureHttpMock()
+        data = [{}];
+
+        const result = await KlassWithAttributes.fetchAll(httpOptions);
+
+        expect(result.models.length).to.eq(data.length);
       });
     });
   });
