@@ -162,7 +162,7 @@ describe('Http', () => {
         };
       });
 
-      it('should use the decode function 55', async() => {
+      it('should use the decode function', async() => {
         configureHttpMock();
         data = { things: 'foo' };
 
