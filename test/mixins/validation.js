@@ -21,8 +21,8 @@ describe('Validation', () => {
       static attributes() {
         return {
           name: {
-            validations: { customValidation: true }
-          }
+            validations: { customValidation: true },
+          },
         };
       }
     };

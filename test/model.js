@@ -174,8 +174,8 @@ describe('Model', () => {
           expect(customInstance.changes).to.deep.equal({
             firstAttribute: {
               newValue: newValue,
-              oldValue: firstAttributeValue
-            }
+              oldValue: firstAttributeValue,
+            },
           });
         });
 
