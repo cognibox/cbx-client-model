@@ -110,7 +110,7 @@ describe('Http', () => {
     context('when passing parameters', () => {
       it('should retrieve data using params', async() => {
         httpOptions = { params: { stuff: Math.random() }};
-        configureHttpMock()
+        configureHttpMock();
         data = [{}];
 
         const result = await KlassWithAttributes.fetchAll(httpOptions);
@@ -121,7 +121,13 @@ describe('Http', () => {
   });
 
   describe('.fetchOne', () => {
-    let KlassWithAttributes, KlassWithDecoder, id, url, data;
+    let KlassWithAttributes, KlassWithDecoder, id, url, data, httpOptions;
+
+    function configureHttpMock() {
+      httpMock.onGet(url, httpOptions).reply(() => {
+        return [200, data];
+      });
+    }
 
     beforeEach(() => {
       id = Math.random();
@@ -133,18 +139,16 @@ describe('Http', () => {
       KlassWithAttributes = class extends Klass {
         static attributes() { return { id: {}, stuff: {} }; }
       };
-
-      httpMock.onGet(url).reply(() => {
-        return [200, data];
-      });
     });
 
     it('should return a new instance', async() => {
+      configureHttpMock();
       const result = await KlassWithAttributes.fetchOne(id);
       expect(result).to.be.instanceof(KlassWithAttributes);
     });
 
     it('should set model properties', async() => {
+      configureHttpMock();
       const result = await KlassWithAttributes.fetchOne(id);
       expect(result.attributes.stuff.value).to.equal(data.stuff);
     });
@@ -159,9 +163,23 @@ describe('Http', () => {
       });
 
       it('should use the decode function', async() => {
+        configureHttpMock();
         data = { things: 'foo' };
+
         const result = await KlassWithDecoder.fetchOne(id);
+
         expect(result.attributes.stuff.value).to.eq(data.things);
+      });
+    });
+
+    context('when passing parameters', () => {
+      it('should retrieve data using params', async() => {
+        httpOptions = { params: { stuff: Math.random() }};
+        configureHttpMock();
+
+        const result = await KlassWithAttributes.fetchOne(id, httpOptions);
+
+        expect(result.attributes.stuff.value).to.equal(data.stuff);
       });
     });
   });
@@ -208,7 +226,13 @@ describe('Http', () => {
   });
 
   describe('#fetch', () => {
-    let model, KlassWithAttributes, KlassWithDecoder, id, url, data;
+    let model, KlassWithAttributes, KlassWithDecoder, id, url, data, httpOptions;
+
+    function configureHttpMock() {
+      httpMock.onGet(url, httpOptions).reply(() => {
+        return [200, data];
+      });
+    }
 
     beforeEach(() => {
       id = Math.random();
@@ -222,13 +246,10 @@ describe('Http', () => {
       };
 
       model = new KlassWithAttributes({ id: id });
-
-      httpMock.onGet(url).reply(() => {
-        return [200, data];
-      });
     });
 
     it('should set model properties', async() => {
+      configureHttpMock();
       await model.fetch();
       expect(model.attributes.stuff.value).to.equal(data.stuff);
     });
@@ -243,9 +264,23 @@ describe('Http', () => {
       });
 
       it('should use the decode function', async() => {
+        configureHttpMock();
         data = { things: 'foo' };
+
         const result = await KlassWithDecoder.fetchOne(id);
+
         expect(result.attributes.stuff.value).to.eq(data.things);
+      });
+    });
+
+    context('when passing parameters', () => {
+      it('should retrieve data using params', async() => {
+        httpOptions = { params: { stuff: Math.random() }};
+        configureHttpMock();
+
+        await model.fetch(httpOptions);
+
+        expect(model.attributes.stuff.value).to.equal(data.stuff);
       });
     });
   });
