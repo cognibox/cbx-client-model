@@ -45,7 +45,7 @@ describe('Http', () => {
     });
 
     context('when data is an array', () => {
-      beforeEach(() => { configureHttpMock() });
+      beforeEach(() => { configureHttpMock(); });
 
       it('should convert data to instances', async() => {
         data = [{}];
@@ -61,7 +61,7 @@ describe('Http', () => {
     });
 
     context('when data is an object', () => {
-      beforeEach(() => { configureHttpMock() });
+      beforeEach(() => { configureHttpMock(); });
 
       it('should convert data to instances', async() => {
         data = { data: [{}] };
@@ -82,19 +82,19 @@ describe('Http', () => {
           data: data.data,
           count: data.count,
           otherStuff: data.otherStuff,
-          models: []
+          models: [],
         });
       });
     });
 
     context('when given a custom decode function', () => {
-      beforeEach(() => { configureHttpMock() });
+      beforeEach(() => { configureHttpMock(); });
 
-      before(() => {
+      beforeEach(() => {
         KlassWithDecoder = class extends KlassWithAttributes {
           static decode(properties) {
             return { id: properties.uid, stuff: properties.things };
-          };
+          }
         };
       });
 
@@ -109,8 +109,8 @@ describe('Http', () => {
 
     context('when passing parameters', () => {
       it('should retrieve data using params', async() => {
-        httpOptions = { params: { stuff: Math.random() }};
-        configureHttpMock()
+        httpOptions = { params: { stuff: Math.random() } };
+        configureHttpMock();
         data = [{}];
 
         const result = await KlassWithAttributes.fetchAll(httpOptions);
@@ -121,47 +121,65 @@ describe('Http', () => {
   });
 
   describe('.fetchOne', () => {
-    let KlassWithAttributes, KlassWithDecoder, id, url, data;
+    let KlassWithAttributes, KlassWithDecoder, id, url, data, httpOptions;
+
+    function configureHttpMock() {
+      httpMock.onGet(url, httpOptions).reply(() => {
+        return [200, data];
+      });
+    }
 
     beforeEach(() => {
       id = Math.random();
       url = `${urlRoot}/${urlResource}/${id}`;
       data = {
-        stuff: Math.random()
+        stuff: Math.random(),
       };
 
       KlassWithAttributes = class extends Klass {
         static attributes() { return { id: {}, stuff: {} }; }
       };
-
-      httpMock.onGet(url).reply(() => {
-        return [200, data];
-      });
     });
 
     it('should return a new instance', async() => {
+      configureHttpMock();
       const result = await KlassWithAttributes.fetchOne(id);
       expect(result).to.be.instanceof(KlassWithAttributes);
     });
 
     it('should set model properties', async() => {
+      configureHttpMock();
       const result = await KlassWithAttributes.fetchOne(id);
       expect(result.attributes.stuff.value).to.equal(data.stuff);
     });
 
     context('when given a custom decode function', () => {
-      before(() => {
+      beforeEach(() => {
         KlassWithDecoder = class extends KlassWithAttributes {
           static decode(properties) {
             return { id: properties.uid, stuff: properties.things };
-          };
+          }
         };
       });
 
       it('should use the decode function', async() => {
+        configureHttpMock();
         data = { things: 'foo' };
+
         const result = await KlassWithDecoder.fetchOne(id);
+
         expect(result.attributes.stuff.value).to.eq(data.things);
+      });
+    });
+
+    context('when passing parameters', () => {
+      it('should retrieve data using params', async() => {
+        httpOptions = { params: { stuff: Math.random() } };
+        configureHttpMock();
+
+        const result = await KlassWithAttributes.fetchOne(id, httpOptions);
+
+        expect(result.attributes.stuff.value).to.equal(data.stuff);
       });
     });
   });
@@ -192,7 +210,7 @@ describe('Http', () => {
           static attributes() {
             return {
               id: {},
-              otherKey: { primary: true }
+              otherKey: { primary: true },
             };
           }
         };
@@ -208,13 +226,19 @@ describe('Http', () => {
   });
 
   describe('#fetch', () => {
-    let model, KlassWithAttributes, KlassWithDecoder, id, url, data;
+    let model, KlassWithAttributes, KlassWithDecoder, id, url, data, httpOptions;
+
+    function configureHttpMock() {
+      httpMock.onGet(url, httpOptions).reply(() => {
+        return [200, data];
+      });
+    }
 
     beforeEach(() => {
       id = Math.random();
       url = `${urlRoot}/${urlResource}/${id}`;
       data = {
-        stuff: Math.random()
+        stuff: Math.random(),
       };
 
       KlassWithAttributes = class extends Klass {
@@ -222,30 +246,41 @@ describe('Http', () => {
       };
 
       model = new KlassWithAttributes({ id: id });
-
-      httpMock.onGet(url).reply(() => {
-        return [200, data];
-      });
     });
 
     it('should set model properties', async() => {
+      configureHttpMock();
       await model.fetch();
       expect(model.attributes.stuff.value).to.equal(data.stuff);
     });
 
     context('when given a custom decode function', () => {
-      before(() => {
+      beforeEach(() => {
         KlassWithDecoder = class extends KlassWithAttributes {
           static decode(properties) {
             return { id: properties.uid, stuff: properties.things };
-          };
+          }
         };
       });
 
       it('should use the decode function', async() => {
+        configureHttpMock();
         data = { things: 'foo' };
+
         const result = await KlassWithDecoder.fetchOne(id);
+
         expect(result.attributes.stuff.value).to.eq(data.things);
+      });
+    });
+
+    context('when passing parameters', () => {
+      it('should retrieve data using params', async() => {
+        httpOptions = { params: { stuff: Math.random() } };
+        configureHttpMock();
+
+        await model.fetch(httpOptions);
+
+        expect(model.attributes.stuff.value).to.equal(data.stuff);
       });
     });
   });
@@ -291,7 +326,7 @@ describe('Http', () => {
           const postData = { something: Math.random() };
           const url = `${urlRoot}/${urlResource}`;
           httpMock.onPost(url, {
-            attr1: dataValue
+            attr1: dataValue,
           }).reply(() => {
             return [200, postData];
           });
@@ -303,14 +338,14 @@ describe('Http', () => {
         });
 
         context('when given a custom encode function', () => {
-          before(() => {
+          beforeEach(() => {
             KlassWithEncoder = class extends KlassWithAttributes {
               static encode(properties) {
                 Object.keys(properties).forEach((key) => {
-                  if (properties[key]) properties[key] = properties[key] + 'a';
+                  if (properties[key]) properties[key] = `${properties[key]}a`;
                 });
                 return properties;
-              };
+              }
             };
           });
 
@@ -342,7 +377,7 @@ describe('Http', () => {
           const url = `${urlRoot}/${urlResource}`;
           httpMock.onPost(url, {
             attr1: modelValue,
-            mew: dataValue
+            mew: dataValue,
           }).reply(() => {
             return [200, postData];
           });
@@ -365,7 +400,7 @@ describe('Http', () => {
         postData = { something: Math.random() };
         httpMock.onPost(url, {
           attr1: attr1Value,
-          attr2: attr2Value
+          attr2: attr2Value,
         }).reply(() => {
           return [200, postData];
         });
@@ -394,7 +429,7 @@ describe('Http', () => {
 
         httpMock.onPatch(url, {
           attr1: newAttr1Value,
-          attr3: newAttr3Value
+          attr3: newAttr3Value,
         }).reply(() => {
           return [200, patchData];
         });
@@ -402,7 +437,7 @@ describe('Http', () => {
         model = new KlassWithAttributes({
           uid: uidValue,
           attr1: attr1Value,
-          attr2: Math.random()
+          attr2: Math.random(),
         });
 
         model.attributes.attr1.value = newAttr1Value;
@@ -437,7 +472,7 @@ describe('Http', () => {
       id = Math.random();
       const associationUrl = `${urlRoot}/${urlResource}/${id}/${associationUrlRessource}`;
       data = {
-        stuff: Math.random()
+        stuff: Math.random(),
       };
 
       ClassWithAssociations = class extends Klass {
@@ -445,7 +480,7 @@ describe('Http', () => {
 
         static associations() {
           return {
-            element: { type: 'hasOne', class: AssociationClass }
+            element: { type: 'hasOne', class: AssociationClass },
           };
         }
       };
@@ -489,7 +524,7 @@ describe('Http', () => {
 
           static associations() {
             return {
-              element: { type: 'hasOne', class: AssociationModelClass }
+              element: { type: 'hasOne', class: AssociationModelClass },
             };
           }
         };
