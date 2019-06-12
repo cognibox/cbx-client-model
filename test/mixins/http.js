@@ -212,13 +212,14 @@ describe('Http', () => {
           };
         });
 
-        it('should use the encode function for the payload', async () => {
+        it('should use the encode function for the payload', async() => {
           const value = Math.random();
           const clientOptions = { params: { stuff: value } };
           httpOptions = { params: { stuff: `${value}a` } };
           configureHttpMock();
 
           const result = await KlassWithEncoder.fetchOne(id, clientOptions);
+          expect(result).to.not.be.undefined;
         });
       });
     });
