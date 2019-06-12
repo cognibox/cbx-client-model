@@ -27,7 +27,7 @@ describe('Http', () => {
   });
 
   describe('.fetchAll', () => {
-    let KlassWithAttributes, KlassWithDecoder, url, data, httpOptions;
+    let KlassWithAttributes, KlassWithDecoder, KlassWithEncoder, url, data, httpOptions;
 
     function configureHttpMock() {
       httpMock.onGet(url, httpOptions).reply(() => {
@@ -117,11 +117,32 @@ describe('Http', () => {
 
         expect(result.models.length).to.eq(data.length);
       });
+
+      context('when given a custom encode function', () => {
+        beforeEach(() => {
+          KlassWithEncoder = class extends KlassWithAttributes {
+            static encode(properties) {
+              return { params: { stuff: `${properties.params.stuff}a` } };
+            }
+          };
+        });
+
+        it('should use the encode function for the payload', async() => {
+          const value = Math.random();
+          const clientOptions = { params: { stuff: value } };
+          httpOptions = { params: { stuff: `${value}a` } };
+          configureHttpMock();
+          data = [{}];
+
+          const result = await KlassWithEncoder.fetchAll(clientOptions);
+          expect(result).to.not.be.undefined;
+        });
+      });
     });
   });
 
   describe('.fetchOne', () => {
-    let KlassWithAttributes, KlassWithDecoder, id, url, data, httpOptions;
+    let KlassWithAttributes, KlassWithDecoder, KlassWithEncoder, id, url, data, httpOptions;
 
     function configureHttpMock() {
       httpMock.onGet(url, httpOptions).reply(() => {
@@ -180,6 +201,25 @@ describe('Http', () => {
         const result = await KlassWithAttributes.fetchOne(id, httpOptions);
 
         expect(result.attributes.stuff.value).to.equal(data.stuff);
+      });
+
+      context('when given a custom encode function', () => {
+        beforeEach(() => {
+          KlassWithEncoder = class extends KlassWithAttributes {
+            static encode(properties) {
+              return { params: { stuff: `${properties.params.stuff}a` } };
+            }
+          };
+        });
+
+        it('should use the encode function for the payload', async () => {
+          const value = Math.random();
+          const clientOptions = { params: { stuff: value } };
+          httpOptions = { params: { stuff: `${value}a` } };
+          configureHttpMock();
+
+          const result = await KlassWithEncoder.fetchOne(id, clientOptions);
+        });
       });
     });
   });
