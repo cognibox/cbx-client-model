@@ -1,10 +1,7 @@
-import axios from 'axios';
 import { expect } from 'chai';
 import Model from '../../lib/model.js';
 import HttpMixin from '../../lib/mixins/http.js';
-import AxiosMockAdapter from 'axios-mock-adapter';
-
-const httpMock = new AxiosMockAdapter(axios);
+import httpMock from '../helpers/http-mock.js';
 
 describe('Http', () => {
   let urlResource, urlRoot, Klass;
@@ -27,10 +24,10 @@ describe('Http', () => {
   });
 
   describe('.fetchAll', () => {
-    let KlassWithAttributes, KlassWithDecoder, url, data, httpOptions;
+    let KlassWithAttributes, KlassWithDecoder, KlassWithEncoder, url, data, httpOptions;
 
     function configureHttpMock() {
-      httpMock.onGet(url, httpOptions).reply(() => {
+      httpMock().onGet(url, httpOptions).reply(() => {
         return [200, data];
       });
     }
@@ -117,14 +114,35 @@ describe('Http', () => {
 
         expect(result.models.length).to.eq(data.length);
       });
+
+      context('when given a custom encode function', () => {
+        beforeEach(() => {
+          KlassWithEncoder = class extends KlassWithAttributes {
+            static encode(properties) {
+              return { params: { stuff: `${properties.params.stuff}a` } };
+            }
+          };
+        });
+
+        it('should use the encode function for the payload', async() => {
+          const value = Math.random();
+          const clientOptions = { params: { stuff: value } };
+          httpOptions = { params: { stuff: `${value}a` } };
+          configureHttpMock();
+          data = [{}];
+
+          const result = await KlassWithEncoder.fetchAll(clientOptions);
+          expect(result).to.not.be.undefined;
+        });
+      });
     });
   });
 
   describe('.fetchOne', () => {
-    let KlassWithAttributes, KlassWithDecoder, id, url, data, httpOptions;
+    let KlassWithAttributes, KlassWithDecoder, KlassWithEncoder, id, url, data, httpOptions;
 
     function configureHttpMock() {
-      httpMock.onGet(url, httpOptions).reply(() => {
+      httpMock().onGet(url, httpOptions).reply(() => {
         return [200, data];
       });
     }
@@ -181,6 +199,26 @@ describe('Http', () => {
 
         expect(result.attributes.stuff.value).to.equal(data.stuff);
       });
+
+      context('when given a custom encode function', () => {
+        beforeEach(() => {
+          KlassWithEncoder = class extends KlassWithAttributes {
+            static encode(properties) {
+              return { params: { stuff: `${properties.params.stuff}a` } };
+            }
+          };
+        });
+
+        it('should use the encode function for the payload', async() => {
+          const value = Math.random();
+          const clientOptions = { params: { stuff: value } };
+          httpOptions = { params: { stuff: `${value}a` } };
+          configureHttpMock();
+
+          const result = await KlassWithEncoder.fetchOne(id, clientOptions);
+          expect(result).to.not.be.undefined;
+        });
+      });
     });
   });
 
@@ -229,7 +267,7 @@ describe('Http', () => {
     let model, KlassWithAttributes, KlassWithDecoder, id, url, data, httpOptions;
 
     function configureHttpMock() {
-      httpMock.onGet(url, httpOptions).reply(() => {
+      httpMock().onGet(url, httpOptions).reply(() => {
         return [200, data];
       });
     }
@@ -325,7 +363,7 @@ describe('Http', () => {
           const dataValue = modelValue + 5;
           const postData = { something: Math.random() };
           const url = `${urlRoot}/${urlResource}`;
-          httpMock.onPost(url, {
+          httpMock().onPost(url, {
             attr1: dataValue,
           }).reply(() => {
             return [200, postData];
@@ -356,7 +394,7 @@ describe('Http', () => {
             const url = `${urlRoot}/${urlResource}`;
 
             model = new KlassWithEncoder({ attr1: modelValue });
-            httpMock.onPost(url, {
+            httpMock().onPost(url, {
               attr1: dataValue + 'a',
             }).reply(() => {
               return [200, postData];
@@ -375,7 +413,7 @@ describe('Http', () => {
           const dataValue = modelValue + 5;
           const postData = { something: Math.random() };
           const url = `${urlRoot}/${urlResource}`;
-          httpMock.onPost(url, {
+          httpMock().onPost(url, {
             attr1: modelValue,
             mew: dataValue,
           }).reply(() => {
@@ -398,7 +436,7 @@ describe('Http', () => {
         attr2Value = Math.random();
         const url = `${urlRoot}/${urlResource}`;
         postData = { something: Math.random() };
-        httpMock.onPost(url, {
+        httpMock().onPost(url, {
           attr1: attr1Value,
           attr2: attr2Value,
         }).reply(() => {
@@ -427,7 +465,7 @@ describe('Http', () => {
         const newAttr1Value = attr1Value + 1;
         const newAttr3Value = Math.random();
 
-        httpMock.onPatch(url, {
+        httpMock().onPatch(url, {
           attr1: newAttr1Value,
           attr3: newAttr3Value,
         }).reply(() => {
@@ -455,44 +493,6 @@ describe('Http', () => {
         expect(model.hasChanged).to.be.false;
         expect(model.changes).to.be.empty;
       });
-    });
-  });
-
-  describe('#association#fetch', () => {
-    let AssociationClass, associationUrlRessource, ClassWithAssociations, data, id, model;
-
-    beforeEach(() => {
-      associationUrlRessource = Math.random().toString();
-      AssociationClass = class extends Klass {
-        static attributes() { return { id: {}, stuff: {} }; }
-
-        static urlResource() { return associationUrlRessource; }
-      };
-
-      id = Math.random();
-      const associationUrl = `${urlRoot}/${urlResource}/${id}/${associationUrlRessource}`;
-      data = {
-        stuff: Math.random(),
-      };
-
-      ClassWithAssociations = class extends Klass {
-        static attributes() { return { id: {} }; }
-
-        static associations() {
-          return {
-            element: { type: 'hasOne', class: AssociationClass },
-          };
-        }
-      };
-
-      model = new ClassWithAssociations({ id: id });
-
-      httpMock.onGet(associationUrl).reply(200, data);
-    });
-
-    it('should set association model properties', async() => {
-      await model.associations.element.fetch();
-      expect(model.associations.element.value.attributes.stuff.value).to.equal(data.stuff);
     });
   });
 
