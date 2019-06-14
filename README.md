@@ -39,19 +39,18 @@ class MyModel extends Base {
 ```
 Attributes are specified by a static method returning an object whose keys are attributes and whose values are objects with keys
 - default
-- validations (required: default false, customValidation)
+- validations (required: default false)
 - autoValidate (default true)
-CustomValidation is a function which takes a value and returns a Boolean. `this` is binded on the model.
 ```javascript
 class MyModel extends Base {
   static attributes() {
     return {
       id: {},
       myName: {
+        default: 'Fred',
+        autoValidate: false,
         validations: {
-          customValidation(value) {
-            return value.match(/^Fred/) ^ this.attributes.id.value == 1
-          }
+          required: true,
         },
       },
     };
@@ -137,26 +136,22 @@ myModel.hasChanged // false
 To save associations with the model, the `save` method can be overloaded in the model.
 ```javascript
 import Base from '../../core/models/base';
-import Questionnaire from './questionnaire';
+import Friend from './friend;
 
-class PartnershipSetting extends Base {
+class MyModel extends Base {
   static associations() {
     return {
-      questionnaires: {
-        class: Questionnaire,
-        default: [],
+      friends: {
+        class: Friends,
         type: 'hasMany',
       },
     };
   }
 
   save() {
-    const data = {};
-    if (this.associations.questionnaires.hasChanged) {
-      data.questionnaireId = this.this.associations.questionnaires.value.map((questionnaire) => questionnaire.id);
-    }
-    return super.save(data).then(() => {
-      this.associations.questionnaires.setPristine();
+    const friendIds = this.associations.friends.value.map((friend) => friend.id)
+    return super.save({ friendIds }).then(() => {
+      this.associations.friends.setPristine();
     });
   }
 }
