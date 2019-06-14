@@ -174,8 +174,8 @@ describe('Model', () => {
           expect(customInstance.changes).to.deep.equal({
             firstAttribute: {
               newValue: newValue,
-              oldValue: firstAttributeValue
-            }
+              oldValue: firstAttributeValue,
+            },
           });
         });
 
@@ -269,7 +269,7 @@ describe('Model', () => {
 
   context('when overriding associationClass', () => {
     class CustomAssociationClass extends Model.associationClass() {}
-    class AssociationModelClass {}
+    class AssociationModelClass extends Model {}
     class CustomModel extends Model {
       static associationClass() { return CustomAssociationClass; }
       static associations() { return { something: { type: 'belongsTo', class: AssociationModelClass } }; }

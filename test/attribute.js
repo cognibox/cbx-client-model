@@ -104,7 +104,7 @@ describe('Attribute', () => {
 
     it('should set originalValue to newValue', () => {
       model.setPristine();
-      expect(model.getOriginalValue()).to.equal(newValue);
+      expect(model.originalValue).to.equal(newValue);
     });
   });
 });
