@@ -3,25 +3,18 @@ import BaseModel from '../../lib/model.js';
 import ValidationMixin from '../../lib/mixins/validation.js';
 
 describe('Validation', () => {
-  let Model, Validator;
+  let ModelWithValidation;
 
   beforeEach(() => {
-    const ModelWithValidation = ValidationMixin(BaseModel);
-    const AttributeClass = ModelWithValidation.attributeClass();
-    Validator = class extends AttributeClass.validatorClass() {};
-
-    const CustomAttributeClass = class extends AttributeClass {
-      static validatorClass() { return Validator; }
-    };
-
-    Validator.customValidation = () => true;
-    Model = class extends ModelWithValidation {
-      static attributeClass() { return CustomAttributeClass; }
-
+    ModelWithValidation = class extends ValidationMixin(BaseModel) {
       static attributes() {
         return {
           name: {
-            validations: { customValidation: true },
+            validations: {
+              isLongEnough(value) {
+                return value.length > 10;
+              },
+            },
           },
         };
       }
@@ -33,14 +26,13 @@ describe('Validation', () => {
 
     context('when model is initially valid', () => {
       beforeEach(() => {
-        Validator.customValidation = () => true;
-        model = new Model({ name: Math.random() });
+        model = new ModelWithValidation({ name: 'a very long name' });
       });
 
       context('when validating attribute', () => {
         context('when validation fail', () => {
           beforeEach(() => {
-            Validator.customValidation = () => false;
+            model.attributes.name.value = 'shortname';
             model.attributes.name.validate();
           });
 
@@ -49,13 +41,13 @@ describe('Validation', () => {
           });
 
           it('should set errors', () => {
-            expect(model.errors).to.deep.equal({ name: { customValidation: false } });
+            expect(model.errors).to.deep.equal({ name: { isLongEnough: false } });
           });
         });
 
         context('when validation succeed', () => {
           beforeEach(() => {
-            Validator.customValidation = () => true;
+            model.attributes.name.value = 'a very long name';
             model.attributes.name.validate();
           });
 
@@ -72,14 +64,13 @@ describe('Validation', () => {
 
     context('when model is initially not valid', () => {
       beforeEach(() => {
-        Validator.customValidation = () => false;
-        model = new Model({ name: Math.random() });
+        model = new ModelWithValidation({ name: 'shortname' });
       });
 
       context('when validating attribute', () => {
         context('when validation fail', () => {
           beforeEach(() => {
-            Validator.customValidation = () => false;
+            model.attributes.name.value = 'shortname';
             model.attributes.name.validate();
           });
 
@@ -88,13 +79,13 @@ describe('Validation', () => {
           });
 
           it('should set errors', () => {
-            expect(model.errors).to.deep.equal({ name: { customValidation: false } });
+            expect(model.errors).to.deep.equal({ name: { isLongEnough: false } });
           });
         });
 
         context('when validation succeed', () => {
           beforeEach(() => {
-            Validator.customValidation = () => true;
+            model.attributes.name.value = 'a very long name';
             model.attributes.name.validate();
           });
 
