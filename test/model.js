@@ -252,6 +252,59 @@ describe('Model', () => {
     });
   });
 
+  context('when passing mixins', () => {
+    it('should apply the mixins to the class', () => {
+      const foo = (superClass) => class extends superClass {
+        foo() {
+          return 'foo';
+        }
+      };
+
+      const bar = (superClass) => class extends superClass {
+        bar() {
+          return 'bar';
+        }
+      };
+
+      class CustomModel extends Model {
+        static attributes() {
+          return {
+            name: {
+              mixins: [foo, bar],
+            },
+          };
+        }
+      }
+
+      const model = new CustomModel();
+
+      expect(model.attributes.name.foo()).to.equal('foo');
+      expect(model.attributes.name.bar()).to.equal('bar');
+    });
+
+    it('should bind this to the attribute', () => {
+      const foo = (superClass) => class extends superClass {
+        foo() {
+          return this.value;
+        }
+      };
+
+      class CustomModel extends Model {
+        static attributes() {
+          return {
+            name: {
+              mixins: [foo],
+            },
+          };
+        }
+      }
+
+      const model = new CustomModel({ name: 'foo' });
+
+      expect(model.attributes.name.foo()).to.equal('foo');
+    });
+  });
+
   context('when overriding attributeClass', () => {
     class CustomAttribute extends Model.attributeClass() {}
     class CustomModel extends Model {
