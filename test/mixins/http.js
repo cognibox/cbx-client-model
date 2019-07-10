@@ -47,13 +47,13 @@ describe('Http', () => {
       it('should convert data to instances', async() => {
         data = [{}];
         const result = await KlassWithAttributes.fetchAll();
-        expect(result.models[0]).to.be.instanceof(KlassWithAttributes);
+        expect(result.data[0]).to.be.instanceof(KlassWithAttributes);
       });
 
       it('should return as many instances as received', async() => {
         data = [{}, {}, {}];
         const result = await KlassWithAttributes.fetchAll();
-        expect(result.models.length).to.eq(data.length);
+        expect(result.data.length).to.eq(data.length);
       });
     });
 
@@ -63,23 +63,22 @@ describe('Http', () => {
       it('should convert data to instances', async() => {
         data = { data: [{}] };
         const result = await KlassWithAttributes.fetchAll();
-        expect(result.models[0]).to.be.instanceof(KlassWithAttributes);
+        expect(result.data[0]).to.be.instanceof(KlassWithAttributes);
       });
 
       it('should return as many instances as received', async() => {
         data = { data: [{}, {}, {}] };
         const result = await KlassWithAttributes.fetchAll();
-        expect(result.models.length).to.eq(data.data.length);
+        expect(result.data.length).to.eq(data.data.length);
       });
 
       it('should keep original response information', async() => {
         data = { data: [], count: Math.random(), otherStuff: Math.random() };
         const result = await KlassWithAttributes.fetchAll();
-        expect(result).to.deep.equal({
+        expect(result.raw).to.deep.equal({
           data: data.data,
           count: data.count,
           otherStuff: data.otherStuff,
-          models: [],
         });
       });
     });
@@ -98,7 +97,7 @@ describe('Http', () => {
       it('should use the decode function', async() => {
         data = [{ uid: 1, things: 'foo' }];
         const result = await KlassWithDecoder.fetchAll();
-        const model = result.models[0];
+        const model = result.data[0];
         expect(model.attributes.id.value).to.eq(data[0].uid);
         expect(model.attributes.stuff.value).to.eq(data[0].things);
       });
@@ -112,7 +111,7 @@ describe('Http', () => {
 
         const result = await KlassWithAttributes.fetchAll(httpOptions);
 
-        expect(result.models.length).to.eq(data.length);
+        expect(result.data.length).to.eq(data.length);
       });
 
       context('when given a custom encode function', () => {
