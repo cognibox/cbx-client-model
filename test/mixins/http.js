@@ -531,9 +531,7 @@ describe('Http', () => {
 
       it.only('should use parent url as root url', () => {
         const id = Math.random().toString();
-        console.log('ogoo')
         const model = new ModelClass({ id: id });
-        console.log('ogoo')
 
         const association = model.fields.element.value;
 
