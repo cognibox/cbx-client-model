@@ -256,13 +256,15 @@ describe('Model', () => {
     it('should apply the mixins to the class', () => {
       const foo = (superClass) => class extends superClass {
         foo() {
-          return 'foo';
+          this.foo2 = 'foo';
+          return this.foo;
         }
       };
 
       const bar = (superClass) => class extends superClass {
         bar() {
-          return 'bar';
+          this.bar2 = 'bar';
+          return this.bar2;
         }
       };
 
@@ -309,6 +311,7 @@ describe('Model', () => {
     class CustomField extends Model.fieldClass() {}
     class CustomModel extends Model {
       static fieldClass() { return CustomField; }
+
       static fields() { return { name: {} }; }
     }
 

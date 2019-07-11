@@ -87,9 +87,7 @@ describe('Association', () => {
         context('when values are instance of the association class', () => {
           it('should set the value', () => {
             const values = [Math.random(), Math.random()];
-            const instances = values.map((value) => {
-              return new CustomClass({ id: value });
-            });
+            const instances = values.map((value) => new CustomClass({ id: value }));
             const AssociationClass = type(CustomClass)(Field);
             const association = new AssociationClass({
               value: instances,

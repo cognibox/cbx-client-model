@@ -83,7 +83,7 @@ describe('Field', () => {
   });
 
   describe('setPristine', () => {
-    let model, originalValue, newValue;
+    let model, newValue, originalValue;
 
     beforeEach(() => {
       originalValue = Math.random();

@@ -5,12 +5,10 @@ import HttpMixin from '../../lib/mixins/http.js';
 import httpMock from '../helpers/http-mock.js';
 
 describe('Http#association', () => {
-  let associationUrl, Klass, KlassWithEncoder, data, httpOptions, associationUrlRessource, urlResource, urlRoot, AssociationKlass, id, KlassWithAssociations, model;
+  let AssociationKlass, associationUrl, associationUrlRessource, data, httpOptions, id, Klass, KlassWithAssociations, KlassWithEncoder, model, urlResource, urlRoot;
 
   function configureHttpMock() {
-    httpMock(associationUrl, httpOptions).onGet().reply(() => {
-      return [200, data];
-    });
+    httpMock(associationUrl, httpOptions).onGet().reply(() => [200, data]);
   }
 
   beforeEach(() => {

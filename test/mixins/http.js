@@ -4,8 +4,10 @@ import HttpMixin from '../../lib/mixins/http.js';
 import { hasOne } from '../../lib/field-mixins/association';
 import httpMock from '../helpers/http-mock.js';
 
+const HTTP_SUCCESS = 200;
+
 describe('Http', () => {
-  let urlResource, urlRoot, Klass;
+  let Klass, urlResource, urlRoot;
 
   beforeEach(() => {
     urlResource = Math.random().toString();
@@ -25,12 +27,10 @@ describe('Http', () => {
   });
 
   describe('.fetchAll', () => {
-    let KlassWithFields, KlassWithDecoder, KlassWithEncoder, url, data, httpOptions;
+    let data, httpOptions, KlassWithDecoder, KlassWithEncoder, KlassWithFields, url;
 
     function configureHttpMock() {
-      httpMock().onGet(url, httpOptions).reply(() => {
-        return [200, data];
-      });
+      httpMock().onGet(url, httpOptions).reply(() => [HTTP_SUCCESS, data]);
     }
 
     beforeEach(() => {
@@ -139,12 +139,10 @@ describe('Http', () => {
   });
 
   describe('.fetchOne', () => {
-    let KlassWithFields, KlassWithDecoder, KlassWithEncoder, id, url, data, httpOptions;
+    let data, httpOptions, id, KlassWithDecoder, KlassWithEncoder, KlassWithFields, url;
 
     function configureHttpMock() {
-      httpMock().onGet(url, httpOptions).reply(() => {
-        return [200, data];
-      });
+      httpMock().onGet(url, httpOptions).reply(() => [HTTP_SUCCESS, data]);
     }
 
     beforeEach(() => {
@@ -264,12 +262,10 @@ describe('Http', () => {
   });
 
   describe('#fetch', () => {
-    let model, KlassWithFields, KlassWithDecoder, id, url, data, httpOptions;
+    let data, httpOptions, id, KlassWithDecoder, KlassWithFields, model, url;
 
     function configureHttpMock() {
-      httpMock().onGet(url, httpOptions).reply(() => {
-        return [200, data];
-      });
+      httpMock().onGet(url, httpOptions).reply(() => [HTTP_SUCCESS, data]);
     }
 
     beforeEach(() => {
@@ -324,7 +320,7 @@ describe('Http', () => {
   });
 
   describe('#isNew', () => {
-    let model, KlassWithFields;
+    let KlassWithFields, model;
 
     beforeEach(() => {
       KlassWithFields = class extends Klass {
@@ -348,7 +344,7 @@ describe('Http', () => {
   });
 
   describe('#save', () => {
-    let model, KlassWithFields, KlassWithEncoder;
+    let KlassWithEncoder, KlassWithFields, model;
 
     beforeEach(() => {
       KlassWithFields = class extends Klass {
@@ -365,9 +361,7 @@ describe('Http', () => {
           const url = `${urlRoot}/${urlResource}`;
           httpMock().onPost(url, {
             attr1: dataValue,
-          }).reply(() => {
-            return [200, postData];
-          });
+          }).reply(() => [HTTP_SUCCESS, postData]);
 
           model = new KlassWithFields({ attr1: modelValue });
           const result = await model.save({ attr1: dataValue });
@@ -395,10 +389,8 @@ describe('Http', () => {
 
             model = new KlassWithEncoder({ attr1: modelValue });
             httpMock().onPost(url, {
-              attr1: dataValue + 'a',
-            }).reply(() => {
-              return [200, postData];
-            });
+              attr1: `${dataValue}a`,
+            }).reply(() => [HTTP_SUCCESS, postData]);
 
             const result = await model.save({ attr1: dataValue });
 
@@ -416,9 +408,7 @@ describe('Http', () => {
           httpMock().onPost(url, {
             attr1: modelValue,
             mew: dataValue,
-          }).reply(() => {
-            return [200, postData];
-          });
+          }).reply(() => [HTTP_SUCCESS, postData]);
 
           model = new KlassWithFields({ attr1: modelValue });
           const result = await model.save({ mew: dataValue });
@@ -429,7 +419,7 @@ describe('Http', () => {
     });
 
     context('when instance is new', () => {
-      let postData, attr1Value, attr2Value;
+      let attr1Value, attr2Value, postData;
 
       beforeEach(() => {
         attr1Value = Math.random();
@@ -439,9 +429,7 @@ describe('Http', () => {
         httpMock().onPost(url, {
           attr1: attr1Value,
           attr2: attr2Value,
-        }).reply(() => {
-          return [200, postData];
-        });
+        }).reply(() => [HTTP_SUCCESS, postData]);
 
         model = new KlassWithFields({ attr1: attr1Value });
         model.fields.attr2.value = attr2Value;
@@ -468,9 +456,7 @@ describe('Http', () => {
         httpMock().onPatch(url, {
           attr1: newAttr1Value,
           attr3: newAttr3Value,
-        }).reply(() => {
-          return [200, patchData];
-        });
+        }).reply(() => [HTTP_SUCCESS, patchData]);
 
         model = new KlassWithFields({
           uid: uidValue,
@@ -498,7 +484,7 @@ describe('Http', () => {
 
   context('for associations', () => {
     describe('#buildUrl', () => {
-      let ModelClass, AssociationUrlRessource;
+      let AssociationUrlRessource, ModelClass;
 
       beforeEach(() => {
         AssociationUrlRessource = Math.random().toString();

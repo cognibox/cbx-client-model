@@ -3,7 +3,7 @@ import Model from '../../lib/model.js';
 import ValidationMixin from '../../lib/mixins/validation.js';
 
 describe('Validation', () => {
-  let ModelWithValidation, FieldClass;
+  let FieldClass, ModelWithValidation;
 
   beforeEach(() => {
     ModelWithValidation = ValidationMixin(Model);

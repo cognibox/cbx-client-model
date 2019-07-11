@@ -4,8 +4,8 @@ import { hasMany } from '../../lib/field-mixins/association';
 import ValidationMixin from '../../lib/mixins/validation.js';
 
 describe('Validation', () => {
-  const longEnoughValidationText = 'Name is not long enough', atLeastOneValidationText = 'Need more assoc';
-  let ModelWithValidation, AssociationModel;
+  const atLeastOneValidationText = 'Need more assoc', longEnoughValidationText = 'Name is not long enough';
+  let AssociationModel, ModelWithValidation;
 
   beforeEach(() => {
     AssociationModel = class extends BaseModel {
@@ -22,7 +22,8 @@ describe('Validation', () => {
           name: {
             validations: {
               isLongEnough(value) {
-                if (value.length > 10) return true;
+                const LONG_ENOUGH = 10;
+                if (value.length > LONG_ENOUGH) return true;
 
                 return longEnoughValidationText;
               },
