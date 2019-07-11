@@ -3,19 +3,19 @@ import Model from '../../lib/model.js';
 import ValidationMixin from '../../lib/mixins/validation.js';
 
 describe('Validation', () => {
-  let ModelWithValidation, AttributeClass;
+  let ModelWithValidation, FieldClass;
 
   beforeEach(() => {
     ModelWithValidation = ValidationMixin(Model);
-    AttributeClass = ModelWithValidation.attributeClass();
+    FieldClass = ModelWithValidation.fieldClass();
   });
 
   context('autoValidate', () => {
-    let attribute;
+    let field;
 
     context('when autoValidate is false', () => {
       beforeEach(() => {
-        attribute = new AttributeClass(
+        field = new FieldClass(
           {
             value: 3,
             validations: {
@@ -27,14 +27,14 @@ describe('Validation', () => {
       });
 
       it('should not validate automatically on changes', () => {
-        attribute.value = 5;
-        expect(attribute.isValid).to.be.true;
+        field.value = 5;
+        expect(field.isValid).to.be.true;
       });
     });
 
     context('when autoValidate is true', () => {
       beforeEach(() => {
-        attribute = new AttributeClass(
+        field = new FieldClass(
           {
             value: 3,
             validations: {
@@ -46,14 +46,14 @@ describe('Validation', () => {
       });
 
       it('should validate automatically on changes', () => {
-        attribute.value = 5;
-        expect(attribute.isValid).to.be.false;
+        field.value = 5;
+        expect(field.isValid).to.be.false;
       });
     });
 
     context('when autoValidate is undefined', () => {
       beforeEach(() => {
-        attribute = new AttributeClass(
+        field = new FieldClass(
           {
             value: 3,
             validations: {
@@ -64,39 +64,39 @@ describe('Validation', () => {
       });
 
       it('should validate automatically on changes', () => {
-        attribute.value = 5;
-        expect(attribute.isValid).to.be.false;
+        field.value = 5;
+        expect(field.isValid).to.be.false;
       });
     });
   });
 
   describe('#validate', () => {
-    let attribute;
+    let field;
 
     context('when validations is not defined', () => {
       beforeEach(() => {
-        attribute = new AttributeClass({ value: 3 });
+        field = new FieldClass({ value: 3 });
       });
 
       it('should return an empty object', () => {
-        const result = attribute.validate();
+        const result = field.validate();
         expect(result).to.be.an('object').that.is.empty;
       });
 
       it('should set isValid to true', () => {
-        attribute.validate();
-        expect(attribute.isValid).to.be.true;
+        field.validate();
+        expect(field.isValid).to.be.true;
       });
 
       it('should set errors to empty object', () => {
-        attribute.validate();
-        expect(attribute.errors).to.be.an('object').that.is.empty;
+        field.validate();
+        expect(field.errors).to.be.an('object').that.is.empty;
       });
     });
 
     context('when validations is defined', () => {
       beforeEach(() => {
-        attribute = new AttributeClass({
+        field = new FieldClass({
           value: 3,
           validations: {
           },
@@ -104,49 +104,49 @@ describe('Validation', () => {
       });
 
       context('when calling validate', () => {
-        it('should bind this on the attribute', () => {
-          attribute.validations.validation = function() { return this; };
+        it('should bind this on the field', () => {
+          field.validations.validation = function() { return this; };
 
-          const result = attribute.validate();
+          const result = field.validate();
 
-          expect(result.validation).to.equal(attribute);
+          expect(result.validation).to.equal(field);
         });
       });
 
       context('when all validations pass', () => {
         beforeEach(() => {
-          attribute.validations.validation1 = () => true;
-          attribute.validations.validation2 = () => true;
+          field.validations.validation1 = () => true;
+          field.validations.validation2 = () => true;
         });
 
         it('should return an empty object', () => {
-          const result = attribute.validate();
+          const result = field.validate();
           expect(result).to.be.an('object').that.is.empty;
         });
 
         it('should set isValid to true', () => {
-          attribute.validate();
-          expect(attribute.isValid).to.be.true;
+          field.validate();
+          expect(field.isValid).to.be.true;
         });
 
         it('should set errors to empty object', () => {
-          attribute.validate();
-          expect(attribute.errors).to.be.an('object').that.is.empty;
+          field.validate();
+          expect(field.errors).to.be.an('object').that.is.empty;
         });
       });
 
       context('when the first validation fails', () => {
         beforeEach(() => {
-          attribute.validations.validation1 = () => 'Failure 1';
+          field.validations.validation1 = () => 'Failure 1';
         });
 
         context('when the second validation passes', () => {
           beforeEach(() => {
-            attribute.validations.validation2 = () => true;
+            field.validations.validation2 = () => true;
           });
 
           it('should return an object containing the first error message', () => {
-            const result = attribute.validate();
+            const result = field.validate();
 
             expect(result).to.be.an('object');
             expect(result.validation1).to.eq('Failure 1');
@@ -155,11 +155,11 @@ describe('Validation', () => {
 
         context('when the second validation fails', () => {
           beforeEach(() => {
-            attribute.validations.validation2 = () => 'Failure 2';
+            field.validations.validation2 = () => 'Failure 2';
           });
 
           it('should return an object containing both error messages', () => {
-            const result = attribute.validate();
+            const result = field.validate();
 
             expect(result).to.be.an('object');
             expect(result.validation1).to.eq('Failure 1');

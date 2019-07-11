@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import Model from '../../lib/model.js';
 import HttpMixin from '../../lib/mixins/http.js';
+import { hasOne } from '../../lib/field-mixins/association';
 import httpMock from '../helpers/http-mock.js';
 
 describe('Http', () => {
@@ -24,7 +25,7 @@ describe('Http', () => {
   });
 
   describe('.fetchAll', () => {
-    let KlassWithAttributes, KlassWithDecoder, KlassWithEncoder, url, data, httpOptions;
+    let KlassWithFields, KlassWithDecoder, KlassWithEncoder, url, data, httpOptions;
 
     function configureHttpMock() {
       httpMock().onGet(url, httpOptions).reply(() => {
@@ -36,8 +37,8 @@ describe('Http', () => {
       url = `${urlRoot}/${urlResource}`;
       data = [];
 
-      KlassWithAttributes = class extends Klass {
-        static attributes() { return { id: {}, stuff: {} }; }
+      KlassWithFields = class extends Klass {
+        static fields() { return { id: {}, stuff: {} }; }
       };
     });
 
@@ -46,13 +47,13 @@ describe('Http', () => {
 
       it('should convert data to instances', async() => {
         data = [{}];
-        const result = await KlassWithAttributes.fetchAll();
-        expect(result.data[0]).to.be.instanceof(KlassWithAttributes);
+        const result = await KlassWithFields.fetchAll();
+        expect(result.data[0]).to.be.instanceof(KlassWithFields);
       });
 
       it('should return as many instances as received', async() => {
         data = [{}, {}, {}];
-        const result = await KlassWithAttributes.fetchAll();
+        const result = await KlassWithFields.fetchAll();
         expect(result.data.length).to.eq(data.length);
       });
     });
@@ -62,19 +63,19 @@ describe('Http', () => {
 
       it('should convert data to instances', async() => {
         data = { data: [{}] };
-        const result = await KlassWithAttributes.fetchAll();
-        expect(result.data[0]).to.be.instanceof(KlassWithAttributes);
+        const result = await KlassWithFields.fetchAll();
+        expect(result.data[0]).to.be.instanceof(KlassWithFields);
       });
 
       it('should return as many instances as received', async() => {
         data = { data: [{}, {}, {}] };
-        const result = await KlassWithAttributes.fetchAll();
+        const result = await KlassWithFields.fetchAll();
         expect(result.data.length).to.eq(data.data.length);
       });
 
       it('should keep original response information', async() => {
         data = { data: [], count: Math.random(), otherStuff: Math.random() };
-        const result = await KlassWithAttributes.fetchAll();
+        const result = await KlassWithFields.fetchAll();
         expect(result.raw).to.deep.equal({
           data: data.data,
           count: data.count,
@@ -87,7 +88,7 @@ describe('Http', () => {
       beforeEach(() => { configureHttpMock(); });
 
       beforeEach(() => {
-        KlassWithDecoder = class extends KlassWithAttributes {
+        KlassWithDecoder = class extends KlassWithFields {
           static decode(properties) {
             return { id: properties.uid, stuff: properties.things };
           }
@@ -98,8 +99,8 @@ describe('Http', () => {
         data = [{ uid: 1, things: 'foo' }];
         const result = await KlassWithDecoder.fetchAll();
         const model = result.data[0];
-        expect(model.attributes.id.value).to.eq(data[0].uid);
-        expect(model.attributes.stuff.value).to.eq(data[0].things);
+        expect(model.fields.id.value).to.eq(data[0].uid);
+        expect(model.fields.stuff.value).to.eq(data[0].things);
       });
     });
 
@@ -109,14 +110,14 @@ describe('Http', () => {
         configureHttpMock();
         data = [{}];
 
-        const result = await KlassWithAttributes.fetchAll(httpOptions);
+        const result = await KlassWithFields.fetchAll(httpOptions);
 
         expect(result.data.length).to.eq(data.length);
       });
 
       context('when given a custom encode function', () => {
         beforeEach(() => {
-          KlassWithEncoder = class extends KlassWithAttributes {
+          KlassWithEncoder = class extends KlassWithFields {
             static encode(properties) {
               return { params: { stuff: `${properties.params.stuff}a` } };
             }
@@ -138,7 +139,7 @@ describe('Http', () => {
   });
 
   describe('.fetchOne', () => {
-    let KlassWithAttributes, KlassWithDecoder, KlassWithEncoder, id, url, data, httpOptions;
+    let KlassWithFields, KlassWithDecoder, KlassWithEncoder, id, url, data, httpOptions;
 
     function configureHttpMock() {
       httpMock().onGet(url, httpOptions).reply(() => {
@@ -153,26 +154,26 @@ describe('Http', () => {
         stuff: Math.random(),
       };
 
-      KlassWithAttributes = class extends Klass {
-        static attributes() { return { id: {}, stuff: {} }; }
+      KlassWithFields = class extends Klass {
+        static fields() { return { id: {}, stuff: {} }; }
       };
     });
 
     it('should return a new instance', async() => {
       configureHttpMock();
-      const result = await KlassWithAttributes.fetchOne(id);
-      expect(result).to.be.instanceof(KlassWithAttributes);
+      const result = await KlassWithFields.fetchOne(id);
+      expect(result).to.be.instanceof(KlassWithFields);
     });
 
     it('should set model properties', async() => {
       configureHttpMock();
-      const result = await KlassWithAttributes.fetchOne(id);
-      expect(result.attributes.stuff.value).to.equal(data.stuff);
+      const result = await KlassWithFields.fetchOne(id);
+      expect(result.fields.stuff.value).to.equal(data.stuff);
     });
 
     context('when given a custom decode function', () => {
       beforeEach(() => {
-        KlassWithDecoder = class extends KlassWithAttributes {
+        KlassWithDecoder = class extends KlassWithFields {
           static decode(properties) {
             return { id: properties.uid, stuff: properties.things };
           }
@@ -185,7 +186,7 @@ describe('Http', () => {
 
         const result = await KlassWithDecoder.fetchOne(id);
 
-        expect(result.attributes.stuff.value).to.eq(data.things);
+        expect(result.fields.stuff.value).to.eq(data.things);
       });
     });
 
@@ -194,14 +195,14 @@ describe('Http', () => {
         httpOptions = { params: { stuff: Math.random() } };
         configureHttpMock();
 
-        const result = await KlassWithAttributes.fetchOne(id, httpOptions);
+        const result = await KlassWithFields.fetchOne(id, httpOptions);
 
-        expect(result.attributes.stuff.value).to.equal(data.stuff);
+        expect(result.fields.stuff.value).to.equal(data.stuff);
       });
 
       context('when given a custom encode function', () => {
         beforeEach(() => {
-          KlassWithEncoder = class extends KlassWithAttributes {
+          KlassWithEncoder = class extends KlassWithFields {
             static encode(properties) {
               return { params: { stuff: `${properties.params.stuff}a` } };
             }
@@ -223,28 +224,28 @@ describe('Http', () => {
 
   describe('#buildUrl', () => {
     describe('when id is the primary key', () => {
-      let KlassWithAttributes;
+      let KlassWithFields;
 
       beforeEach(() => {
-        KlassWithAttributes = class extends Klass {
-          static attributes() { return { id: {} }; }
+        KlassWithFields = class extends Klass {
+          static fields() { return { id: {} }; }
         };
       });
 
       it('should format url using urlRoot, urlResource, id', () => {
         const id = Math.random();
-        const klass = new KlassWithAttributes({ id: id });
+        const klass = new KlassWithFields({ id: id });
 
         expect(klass.buildUrl()).to.equal(`${urlRoot}/${urlResource}/${id}`);
       });
     });
 
     describe('when id is not the primary key', () => {
-      let KlassWithAttributes;
+      let KlassWithFields;
 
       beforeEach(() => {
-        KlassWithAttributes = class extends Klass {
-          static attributes() {
+        KlassWithFields = class extends Klass {
+          static fields() {
             return {
               id: {},
               otherKey: { primary: true },
@@ -255,7 +256,7 @@ describe('Http', () => {
 
       it('should format url using urlRoot, urlResource, otherKey', () => {
         const otherKey = Math.random();
-        const klass = new KlassWithAttributes({ id: Math.random(), otherKey: otherKey });
+        const klass = new KlassWithFields({ id: Math.random(), otherKey: otherKey });
 
         expect(klass.buildUrl()).to.equal(`${urlRoot}/${urlResource}/${otherKey}`);
       });
@@ -263,7 +264,7 @@ describe('Http', () => {
   });
 
   describe('#fetch', () => {
-    let model, KlassWithAttributes, KlassWithDecoder, id, url, data, httpOptions;
+    let model, KlassWithFields, KlassWithDecoder, id, url, data, httpOptions;
 
     function configureHttpMock() {
       httpMock().onGet(url, httpOptions).reply(() => {
@@ -278,22 +279,22 @@ describe('Http', () => {
         stuff: Math.random(),
       };
 
-      KlassWithAttributes = class extends Klass {
-        static attributes() { return { id: {}, stuff: {} }; }
+      KlassWithFields = class extends Klass {
+        static fields() { return { id: {}, stuff: {} }; }
       };
 
-      model = new KlassWithAttributes({ id: id });
+      model = new KlassWithFields({ id: id });
     });
 
     it('should set model properties', async() => {
       configureHttpMock();
       await model.fetch();
-      expect(model.attributes.stuff.value).to.equal(data.stuff);
+      expect(model.fields.stuff.value).to.equal(data.stuff);
     });
 
     context('when given a custom decode function', () => {
       beforeEach(() => {
-        KlassWithDecoder = class extends KlassWithAttributes {
+        KlassWithDecoder = class extends KlassWithFields {
           static decode(properties) {
             return { id: properties.uid, stuff: properties.things };
           }
@@ -306,7 +307,7 @@ describe('Http', () => {
 
         const result = await KlassWithDecoder.fetchOne(id);
 
-        expect(result.attributes.stuff.value).to.eq(data.things);
+        expect(result.fields.stuff.value).to.eq(data.things);
       });
     });
 
@@ -317,46 +318,46 @@ describe('Http', () => {
 
         await model.fetch(httpOptions);
 
-        expect(model.attributes.stuff.value).to.equal(data.stuff);
+        expect(model.fields.stuff.value).to.equal(data.stuff);
       });
     });
   });
 
   describe('#isNew', () => {
-    let model, KlassWithAttributes;
+    let model, KlassWithFields;
 
     beforeEach(() => {
-      KlassWithAttributes = class extends Klass {
-        static attributes() { return { uid: { primary: true }, stuff: {} }; }
+      KlassWithFields = class extends Klass {
+        static fields() { return { uid: { primary: true }, stuff: {} }; }
       };
     });
 
     context('when primary is setted', () => {
       it('should return false', () => {
-        model = new KlassWithAttributes({ uid: Math.random(), stuff: Math.random() });
+        model = new KlassWithFields({ uid: Math.random(), stuff: Math.random() });
         expect(model.isNew()).to.be.false;
       });
     });
 
     context('when primary is not setted', () => {
       it('should return true', () => {
-        model = new KlassWithAttributes({ stuff: Math.random() });
+        model = new KlassWithFields({ stuff: Math.random() });
         expect(model.isNew()).to.be.true;
       });
     });
   });
 
   describe('#save', () => {
-    let model, KlassWithAttributes, KlassWithEncoder;
+    let model, KlassWithFields, KlassWithEncoder;
 
     beforeEach(() => {
-      KlassWithAttributes = class extends Klass {
-        static attributes() { return { uid: { primary: true }, attr1: {}, attr2: {}, attr3: {} }; }
+      KlassWithFields = class extends Klass {
+        static fields() { return { uid: { primary: true }, attr1: {}, attr2: {}, attr3: {} }; }
       };
     });
 
     context('when passing data', () => {
-      context('when passing an existing attributes', () => {
+      context('when passing an existing fields', () => {
         it('should prioritize the passing value', async() => {
           const modelValue = Math.random();
           const dataValue = modelValue + 5;
@@ -368,7 +369,7 @@ describe('Http', () => {
             return [200, postData];
           });
 
-          model = new KlassWithAttributes({ attr1: modelValue });
+          model = new KlassWithFields({ attr1: modelValue });
           const result = await model.save({ attr1: dataValue });
 
           expect(result.data).to.deep.equal(postData);
@@ -376,7 +377,7 @@ describe('Http', () => {
 
         context('when given a custom encode function', () => {
           beforeEach(() => {
-            KlassWithEncoder = class extends KlassWithAttributes {
+            KlassWithEncoder = class extends KlassWithFields {
               static encode(properties) {
                 Object.keys(properties).forEach((key) => {
                   if (properties[key]) properties[key] = `${properties[key]}a`;
@@ -406,7 +407,7 @@ describe('Http', () => {
         });
       });
 
-      context('when passing a non existing attributes', () => {
+      context('when passing a non existing fields', () => {
         it('should send the value', async() => {
           const modelValue = Math.random();
           const dataValue = modelValue + 5;
@@ -419,7 +420,7 @@ describe('Http', () => {
             return [200, postData];
           });
 
-          model = new KlassWithAttributes({ attr1: modelValue });
+          model = new KlassWithFields({ attr1: modelValue });
           const result = await model.save({ mew: dataValue });
 
           expect(result.data).to.deep.equal(postData);
@@ -442,8 +443,8 @@ describe('Http', () => {
           return [200, postData];
         });
 
-        model = new KlassWithAttributes({ attr1: attr1Value });
-        model.attributes.attr2.value = attr2Value;
+        model = new KlassWithFields({ attr1: attr1Value });
+        model.fields.attr2.value = attr2Value;
       });
 
       it('should post data', async() => {
@@ -471,14 +472,14 @@ describe('Http', () => {
           return [200, patchData];
         });
 
-        model = new KlassWithAttributes({
+        model = new KlassWithFields({
           uid: uidValue,
           attr1: attr1Value,
           attr2: Math.random(),
         });
 
-        model.attributes.attr1.value = newAttr1Value;
-        model.attributes.attr3.value = newAttr3Value;
+        model.fields.attr1.value = newAttr1Value;
+        model.fields.attr3.value = newAttr3Value;
       });
 
       it('should patch data', async() => {
@@ -509,7 +510,7 @@ describe('Http', () => {
         };
 
         const AssociationModelClass = class extends Klass {
-          static attributes() {
+          static fields() {
             return { id: {} };
           }
 
@@ -517,23 +518,24 @@ describe('Http', () => {
         };
 
         ModelClass = class extends Klass {
-          static attributes() {
-            return { id: {} };
-          }
-
-          static associations() {
+          static fields() {
             return {
-              element: { type: 'hasOne', class: AssociationModelClass },
+              id: {},
+              element: {
+                mixins: [hasOne(AssociationModelClass)],
+              },
             };
           }
         };
       });
 
-      it('should use parent url as root url', () => {
+      it.only('should use parent url as root url', () => {
         const id = Math.random().toString();
+        console.log('ogoo')
         const model = new ModelClass({ id: id });
+        console.log('ogoo')
 
-        const association = model.associations.element.value;
+        const association = model.fields.element.value;
 
         expect(association.buildUrl()).to.equal(`${model.buildUrl()}/${AssociationUrlRessource}`);
       });

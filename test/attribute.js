@@ -1,18 +1,18 @@
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import Attribute from '../lib/attribute.js';
+import Field from '../lib/field.js';
 
 const expect = chai.expect;
 chai.use(sinonChai);
 
-describe('Attribute', () => {
+describe('Field', () => {
   describe('constructor', () => {
     let model;
     const originalValue = Math.random();
 
     beforeEach(() => {
-      model = new Attribute({ value: originalValue });
+      model = new Field({ value: originalValue });
     });
 
     it('should set hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
@@ -25,7 +25,7 @@ describe('Attribute', () => {
     const originalValue = Math.random();
 
     beforeEach(() => {
-      model = new Attribute({ value: originalValue });
+      model = new Field({ value: originalValue });
       model.value = originalValue + 1;
       model.reset();
     });
@@ -40,7 +40,7 @@ describe('Attribute', () => {
     const originalValue = Math.random();
 
     beforeEach(() => {
-      model = new Attribute({ value: originalValue });
+      model = new Field({ value: originalValue });
     });
 
     describe('when new value is different from old value', () => {
@@ -87,7 +87,7 @@ describe('Attribute', () => {
 
     beforeEach(() => {
       originalValue = Math.random();
-      model = new Attribute({ value: originalValue });
+      model = new Field({ value: originalValue });
       newValue = originalValue + 5;
       model.value = newValue;
     });

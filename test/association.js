@@ -1,6 +1,7 @@
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
-import Association from '../lib/association.js';
+import Field from '../lib/field';
+import { belongsTo, hasMany, hasOne } from '../lib/field-mixins/association.js';
 import Model from '../lib/model.js';
 
 const expect = chai.expect;
@@ -8,8 +9,10 @@ chai.use(sinonChai);
 
 describe('Association', () => {
   const CustomClass = class extends Model {
-    static attributes() {
-      return { id: {} };
+    static fields() {
+      return {
+        id: {},
+      };
     }
   };
 
@@ -18,12 +21,15 @@ describe('Association', () => {
       let type;
 
       context('when type is belongsTo', () => {
-        beforeEach(() => { type = 'belongsTo'; });
+        beforeEach(() => { type = belongsTo; });
 
         context('when value is an instance of the association class', () => {
           it('should set the value', () => {
             const value = new CustomClass();
-            const association = new Association({ value: value, type: type, class: CustomClass });
+            const association = new Field({
+              value: value,
+              mixins: [type(CustomClass)],
+            });
 
             expect(association.value).to.equal(value);
           });
@@ -32,21 +38,29 @@ describe('Association', () => {
         context('when value is not an instance of the association class', () => {
           it('should set the value to an instance of the association class', () => {
             const value = { id: Math.random() };
-            const association = new Association({ value: value, type: type, class: CustomClass });
+            const AssociationClass = type(CustomClass)(Field);
+            const association = new AssociationClass({
+              value: value,
+              mixins: [type(CustomClass)],
+            });
 
             expect(association.value).to.be.instanceof(CustomClass);
-            expect(association.value.attributes.id.value).to.equal(value.id);
+            expect(association.value.fields.id.value).to.equal(value.id);
           });
         });
       });
 
       context('when type is hasOne', () => {
-        beforeEach(() => { type = 'hasOne'; });
+        beforeEach(() => { type = hasOne; });
 
         context('when value is an instance of the association class', () => {
           it('should set the value', () => {
             const value = new CustomClass();
-            const association = new Association({ value: value, type: type, class: CustomClass });
+            const AssociationClass = type(CustomClass)(Field);
+            const association = new AssociationClass({
+              value: value,
+              mixins: [type(CustomClass)],
+            });
 
             expect(association.value).to.equal(value);
           });
@@ -55,16 +69,20 @@ describe('Association', () => {
         context('when value is not an instance of the association class', () => {
           it('should set the value to an instance of the association class', () => {
             const value = { id: Math.random() };
-            const association = new Association({ value: value, type: type, class: CustomClass });
+            const AssociationClass = type(CustomClass)(Field);
+            const association = new AssociationClass({
+              value: value,
+              mixins: [type(CustomClass)],
+            });
 
             expect(association.value).to.be.instanceof(CustomClass);
-            expect(association.value.attributes.id.value).to.equal(value.id);
+            expect(association.value.fields.id.value).to.equal(value.id);
           });
         });
       });
 
       context('when type is hasMany', () => {
-        beforeEach(() => { type = 'hasMany'; });
+        beforeEach(() => { type = hasMany; });
 
         context('when values are instance of the association class', () => {
           it('should set the value', () => {
@@ -72,16 +90,24 @@ describe('Association', () => {
             const instances = values.map((value) => {
               return new CustomClass({ id: value });
             });
-            const association = new Association({ value: instances, type: type, class: CustomClass });
+            const AssociationClass = type(CustomClass)(Field);
+            const association = new AssociationClass({
+              value: instances,
+              mixins: [type(CustomClass)],
+            });
 
-            expect(association.value.map((v) => v.attributes.id.value)).to.deep.equal(values);
+            expect(association.value.map((v) => v.fields.id.value)).to.deep.equal(values);
           });
         });
 
         context('when values are not instance of the association class', () => {
           it('should set the value to an instance of the association class', () => {
-            const values = [Math.random(), Math.random()];
-            const association = new Association({ value: values, type: type, class: CustomClass });
+            const values = [{ id: Math.random() }, { id: Math.random() }];
+            const AssociationClass = type(CustomClass)(Field);
+            const association = new AssociationClass({
+              value: values,
+              mixins: [type(CustomClass)],
+            });
 
             association.value.forEach((instance, index) => {
               expect(association.value[index]).to.be.instanceof(CustomClass);
@@ -100,9 +126,13 @@ describe('Association', () => {
       let association;
 
       beforeEach(() => {
-        type = 'hasMany';
+        type = hasMany;
         const instances = [new CustomClass({ id: Math.random() }), new CustomClass({ id: Math.random() })];
-        association = new Association({ value: instances, type: type, class: CustomClass });
+        const AssociationClass = type(CustomClass)(Field);
+        association = new AssociationClass({
+          value: instances,
+          mixins: [type(CustomClass)],
+        });
       });
 
       context('initially', () => {

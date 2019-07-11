@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import Model from '../../lib/model.js';
+import { hasOne } from '../../lib/field-mixins/association';
 import HttpMixin from '../../lib/mixins/http.js';
 import httpMock from '../helpers/http-mock.js';
 
@@ -29,17 +30,18 @@ describe('Http#association', () => {
     };
 
     AssociationKlass = class extends Klass {
-      static attributes() { return { id: {}, stuff: {} }; }
+      static fields() { return { id: {}, stuff: {} }; }
 
       static urlResource() { return associationUrlRessource; }
     };
 
     KlassWithAssociations = class extends Klass {
-      static attributes() { return { id: {} }; }
-
-      static associations() {
+      static fields() {
         return {
-          element: { type: 'hasOne', class: AssociationKlass },
+          id: {},
+          element: {
+            mixins: [hasOne(AssociationKlass)],
+          },
         };
       }
     };
@@ -50,8 +52,8 @@ describe('Http#association', () => {
   describe('#fetch', () => {
     it('should set association model properties', async() => {
       configureHttpMock();
-      await model.associations.element.fetch();
-      expect(model.associations.element.value.attributes.stuff.value).to.equal(data.stuff);
+      await model.fields.element.fetch();
+      expect(model.fields.element.value.fields.stuff.value).to.equal(data.stuff);
     });
 
     context('when given a custom encode function', () => {
@@ -70,8 +72,8 @@ describe('Http#association', () => {
         configureHttpMock();
         model = new KlassWithEncoder();
 
-        await model.associations.element.fetch(clientOptions);
-        expect(model.associations.element.value.attributes.stuff.value).to.eq(data.stuff);
+        await model.fields.element.fetch(clientOptions);
+        expect(model.fields.element.value.fields.stuff.value).to.eq(data.stuff);
       });
     });
   });
