@@ -1,21 +1,13 @@
 import { expect } from 'chai';
-import Model from '../../lib/model.js';
-import ValidationMixin from '../../lib/mixins/validation.js';
+import { Attribute } from '../../lib/main.js';
 
 describe('Validation', () => {
-  let ModelWithValidation, AttributeClass;
-
-  beforeEach(() => {
-    ModelWithValidation = ValidationMixin(Model);
-    AttributeClass = ModelWithValidation.attributeClass();
-  });
-
   context('autoValidate', () => {
     let attribute;
 
     context('when autoValidate is false', () => {
       beforeEach(() => {
-        attribute = new AttributeClass(
+        attribute = new Attribute(
           {
             value: 3,
             validations: {
@@ -34,7 +26,7 @@ describe('Validation', () => {
 
     context('when autoValidate is true', () => {
       beforeEach(() => {
-        attribute = new AttributeClass(
+        attribute = new Attribute(
           {
             value: 3,
             validations: {
@@ -53,7 +45,7 @@ describe('Validation', () => {
 
     context('when autoValidate is undefined', () => {
       beforeEach(() => {
-        attribute = new AttributeClass(
+        attribute = new Attribute(
           {
             value: 3,
             validations: {
@@ -75,7 +67,7 @@ describe('Validation', () => {
 
     context('when validations is not defined', () => {
       beforeEach(() => {
-        attribute = new AttributeClass({ value: 3 });
+        attribute = new Attribute({ value: 3 });
       });
 
       it('should return an empty object', () => {
@@ -96,7 +88,7 @@ describe('Validation', () => {
 
     context('when validations is defined', () => {
       beforeEach(() => {
-        attribute = new AttributeClass({
+        attribute = new Attribute({
           value: 3,
           validations: {
           },

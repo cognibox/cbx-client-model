@@ -1,26 +1,31 @@
 import { expect } from 'chai';
-import Model from '../lib/main.js';
+import { Model } from '../lib/main.js';
+import Attribute from '../lib/attribute.js';
 
-describe('Model', () => {
+describe('Main', () => {
   describe('#constructor', () => {
     describe('with default values', () => {
       const defaultName = 'jean';
-      class CustomModel extends Model {
-        static attributes() { return { name: { default: defaultName } }; }
-      }
+      let CustomModel;
+
+      beforeEach(() => {
+        CustomModel = class extends Model {
+          buildFields() { return { name: new Attribute({ value: defaultName }) }; }
+        };
+      });
 
       describe('with values in parameters', () => {
         it('should take passed values', () => {
           const customName = 'marc';
           const customModel = new CustomModel({ name: 'marc' });
-          expect(customModel.attributes.name.value).to.equal(customName);
+          expect(customModel.fields.name.value).to.equal(customName);
         });
       });
 
       describe('without values in parameters', () => {
         it('should take default values', () => {
           const customModel = new CustomModel();
-          expect(customModel.attributes.name.value).to.equal(defaultName);
+          expect(customModel.fields.name.value).to.equal(defaultName);
         });
       });
     });
