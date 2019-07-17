@@ -1,49 +1,43 @@
 import { expect } from 'chai';
-import BaseModel from '../../lib/model.js';
-import ValidationMixin from '../../lib/mixins/validation.js';
+import { Model, Attribute, Association } from '../../lib/main.js';
 
 describe('Validation', () => {
   const longEnoughValidationText = 'Name is not long enough', atLeastOneValidationText = 'Need more assoc';
   let ModelWithValidation, AssociationModel;
 
   beforeEach(() => {
-    AssociationModel = class extends BaseModel {
-      static attributes() {
+    AssociationModel = class extends Model {
+      buildFields() {
         return {
-          id: {},
+          id: new Attribute(),
         };
       }
     };
 
-    ModelWithValidation = class extends ValidationMixin(BaseModel) {
-      static attributes() {
+    ModelWithValidation = class extends Model {
+      buildFields() {
         return {
-          name: {
+          name: new Attribute({
             validations: {
               isLongEnough(value) {
-                if (value.length > 10) return true;
+                if (value && value.length > 10) return true;
 
                 return longEnoughValidationText;
               },
             },
-          },
-        };
-      }
+          }),
 
-      static associations() {
-        return {
-          assoc: {
+          assoc: new Association({
             class: AssociationModel,
-            default: [],
-            type: 'hasMany',
+            value: [],
             validations: {
               hasAtLeastOne(value) {
-                if (value.length > 0) return true;
+                if (value && value.length > 0) return true;
 
                 return atLeastOneValidationText;
               },
             },
-          },
+          }),
         };
       }
     };
@@ -128,8 +122,8 @@ describe('Validation', () => {
       context('when validating attribute', () => {
         context('when validation fail', () => {
           beforeEach(() => {
-            model.attributes.name.value = 'shortname';
-            model.attributes.name.validate();
+            model.fields.name.value = 'shortname';
+            model.fields.name.validate();
           });
 
           it('should set isValid to false', () => {
@@ -143,8 +137,8 @@ describe('Validation', () => {
 
         context('when validation succeed', () => {
           beforeEach(() => {
-            model.attributes.name.value = 'a very long name';
-            model.attributes.name.validate();
+            model.fields.name.value = 'a very long name';
+            model.fields.name.validate();
           });
 
           it('should set isValid to true', () => {
@@ -166,8 +160,8 @@ describe('Validation', () => {
       context('when validating attribute', () => {
         context('when validation fail', () => {
           beforeEach(() => {
-            model.attributes.name.value = 'shortname';
-            model.attributes.name.validate();
+            model.fields.name.value = 'shortname';
+            model.fields.name.validate();
           });
 
           it('should set isValid to false', () => {
@@ -181,8 +175,8 @@ describe('Validation', () => {
 
         context('when validation succeed', () => {
           beforeEach(() => {
-            model.attributes.name.value = 'a very long name';
-            model.attributes.name.validate();
+            model.fields.name.value = 'a very long name';
+            model.fields.name.validate();
           });
 
           it('should set isValid to true', () => {

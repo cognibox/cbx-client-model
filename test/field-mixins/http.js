@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import Model from '../../lib/model.js';
 import HttpMixin from '../../lib/mixins/http.js';
 import httpMock from '../helpers/http-mock.js';
+import { Attribute, HasOne, Model } from '../../lib/main.js';
 
 describe('Http#association', () => {
   let associationUrl, Klass, KlassWithEncoder, data, httpOptions, associationUrlRessource, urlResource, urlRoot, AssociationKlass, id, KlassWithAssociations, model;
@@ -29,17 +29,21 @@ describe('Http#association', () => {
     };
 
     AssociationKlass = class extends Klass {
-      static attributes() { return { id: {}, stuff: {} }; }
+      buildFields() {
+        return {
+          id: new Attribute(),
+          stuff: new Attribute(),
+        };
+      }
 
       static urlResource() { return associationUrlRessource; }
     };
 
     KlassWithAssociations = class extends Klass {
-      static attributes() { return { id: {} }; }
-
-      static associations() {
+      buildFields() {
         return {
-          element: { type: 'hasOne', class: AssociationKlass },
+          id: new Attribute(),
+          element: new HasOne({ model: AssociationKlass }),
         };
       }
     };
@@ -50,8 +54,8 @@ describe('Http#association', () => {
   describe('#fetch', () => {
     it('should set association model properties', async() => {
       configureHttpMock();
-      await model.associations.element.fetch();
-      expect(model.associations.element.value.attributes.stuff.value).to.equal(data.stuff);
+      await model.fields.element.fetch();
+      expect(model.fields.element.value.fields.stuff.value).to.equal(data.stuff);
     });
 
     context('when given a custom encode function', () => {
@@ -70,8 +74,8 @@ describe('Http#association', () => {
         configureHttpMock();
         model = new KlassWithEncoder();
 
-        await model.associations.element.fetch(clientOptions);
-        expect(model.associations.element.value.attributes.stuff.value).to.eq(data.stuff);
+        await model.fields.element.fetch(clientOptions);
+        expect(model.fields.element.value.fields.stuff.value).to.eq(data.stuff);
       });
     });
   });

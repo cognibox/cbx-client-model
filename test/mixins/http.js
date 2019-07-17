@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import Model from '../../lib/model.js';
 import HttpMixin from '../../lib/mixins/http.js';
 import httpMock from '../helpers/http-mock.js';
+import { Model, Attribute } from '../../lib/main.js';
 
 describe('Http', () => {
   let urlResource, urlRoot, Klass;
@@ -37,7 +37,7 @@ describe('Http', () => {
       data = [];
 
       KlassWithAttributes = class extends Klass {
-        static attributes() { return { id: {}, stuff: {} }; }
+        buildFields() { return { id: new Attribute(), stuff: new Attribute() }; }
       };
     });
 
@@ -98,8 +98,8 @@ describe('Http', () => {
         data = [{ uid: 1, things: 'foo' }];
         const result = await KlassWithDecoder.fetchAll();
         const model = result.data[0];
-        expect(model.attributes.id.value).to.eq(data[0].uid);
-        expect(model.attributes.stuff.value).to.eq(data[0].things);
+        expect(model.fields.id.value).to.eq(data[0].uid);
+        expect(model.fields.stuff.value).to.eq(data[0].things);
       });
     });
 
@@ -154,7 +154,7 @@ describe('Http', () => {
       };
 
       KlassWithAttributes = class extends Klass {
-        static attributes() { return { id: {}, stuff: {} }; }
+        buildFields() { return { id: new Attribute(), stuff: new Attribute() }; }
       };
     });
 
@@ -167,7 +167,7 @@ describe('Http', () => {
     it('should set model properties', async() => {
       configureHttpMock();
       const result = await KlassWithAttributes.fetchOne(id);
-      expect(result.attributes.stuff.value).to.equal(data.stuff);
+      expect(result.fields.stuff.value).to.equal(data.stuff);
     });
 
     context('when given a custom decode function', () => {
@@ -185,7 +185,7 @@ describe('Http', () => {
 
         const result = await KlassWithDecoder.fetchOne(id);
 
-        expect(result.attributes.stuff.value).to.eq(data.things);
+        expect(result.fields.stuff.value).to.eq(data.things);
       });
     });
 
@@ -196,7 +196,7 @@ describe('Http', () => {
 
         const result = await KlassWithAttributes.fetchOne(id, httpOptions);
 
-        expect(result.attributes.stuff.value).to.equal(data.stuff);
+        expect(result.fields.stuff.value).to.equal(data.stuff);
       });
 
       context('when given a custom encode function', () => {
@@ -227,7 +227,7 @@ describe('Http', () => {
 
       beforeEach(() => {
         KlassWithAttributes = class extends Klass {
-          static attributes() { return { id: {} }; }
+          buildFields() { return { id: new Attribute() }; }
         };
       });
 
@@ -244,10 +244,12 @@ describe('Http', () => {
 
       beforeEach(() => {
         KlassWithAttributes = class extends Klass {
-          static attributes() {
+          static primaryKey() { return 'otherKey'; }
+
+          buildFields() {
             return {
-              id: {},
-              otherKey: { primary: true },
+              id: new Attribute(),
+              otherKey: new Attribute(),
             };
           }
         };
@@ -279,7 +281,7 @@ describe('Http', () => {
       };
 
       KlassWithAttributes = class extends Klass {
-        static attributes() { return { id: {}, stuff: {} }; }
+        buildFields() { return { id: new Attribute(), stuff: new Attribute() }; }
       };
 
       model = new KlassWithAttributes({ id: id });
@@ -288,7 +290,7 @@ describe('Http', () => {
     it('should set model properties', async() => {
       configureHttpMock();
       await model.fetch();
-      expect(model.attributes.stuff.value).to.equal(data.stuff);
+      expect(model.fields.stuff.value).to.equal(data.stuff);
     });
 
     context('when given a custom decode function', () => {
@@ -306,7 +308,7 @@ describe('Http', () => {
 
         const result = await KlassWithDecoder.fetchOne(id);
 
-        expect(result.attributes.stuff.value).to.eq(data.things);
+        expect(result.fields.stuff.value).to.eq(data.things);
       });
     });
 
@@ -317,7 +319,7 @@ describe('Http', () => {
 
         await model.fetch(httpOptions);
 
-        expect(model.attributes.stuff.value).to.equal(data.stuff);
+        expect(model.fields.stuff.value).to.equal(data.stuff);
       });
     });
   });
@@ -327,7 +329,9 @@ describe('Http', () => {
 
     beforeEach(() => {
       KlassWithAttributes = class extends Klass {
-        static attributes() { return { uid: { primary: true }, stuff: {} }; }
+        static primaryKey() { return 'uid'; }
+
+        buildFields() { return { uid: new Attribute(), stuff: new Attribute() }; }
       };
     });
 
@@ -351,7 +355,9 @@ describe('Http', () => {
 
     beforeEach(() => {
       KlassWithAttributes = class extends Klass {
-        static attributes() { return { uid: { primary: true }, attr1: {}, attr2: {}, attr3: {} }; }
+        static primaryKey() { return 'uid'; }
+
+        buildFields() { return { uid: new Attribute(), attr1: new Attribute(), attr2: new Attribute(), attr3: new Attribute() }; }
       };
     });
 
@@ -443,7 +449,7 @@ describe('Http', () => {
         });
 
         model = new KlassWithAttributes({ attr1: attr1Value });
-        model.attributes.attr2.value = attr2Value;
+        model.fields.attr2.value = attr2Value;
       });
 
       it('should post data', async() => {
@@ -477,8 +483,8 @@ describe('Http', () => {
           attr2: Math.random(),
         });
 
-        model.attributes.attr1.value = newAttr1Value;
-        model.attributes.attr3.value = newAttr3Value;
+        model.fields.attr1.value = newAttr1Value;
+        model.fields.attr3.value = newAttr3Value;
       });
 
       it('should patch data', async() => {
@@ -491,51 +497,6 @@ describe('Http', () => {
 
         expect(model.hasChanged).to.be.false;
         expect(model.changes).to.be.empty;
-      });
-    });
-  });
-
-  context('for associations', () => {
-    describe('#buildUrl', () => {
-      let ModelClass, AssociationUrlRessource;
-
-      beforeEach(() => {
-        AssociationUrlRessource = Math.random().toString();
-
-        Klass = class extends HttpMixin(Model) {
-          static urlRoot() { return urlRoot; }
-
-          static urlResource() { return urlResource; }
-        };
-
-        const AssociationModelClass = class extends Klass {
-          static attributes() {
-            return { id: {} };
-          }
-
-          static urlResource() { return AssociationUrlRessource; }
-        };
-
-        ModelClass = class extends Klass {
-          static attributes() {
-            return { id: {} };
-          }
-
-          static associations() {
-            return {
-              element: { type: 'hasOne', class: AssociationModelClass },
-            };
-          }
-        };
-      });
-
-      it('should use parent url as root url', () => {
-        const id = Math.random().toString();
-        const model = new ModelClass({ id: id });
-
-        const association = model.associations.element.value;
-
-        expect(association.buildUrl()).to.equal(`${model.buildUrl()}/${AssociationUrlRessource}`);
       });
     });
   });
