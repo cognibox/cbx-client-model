@@ -25,21 +25,30 @@ describe('Validation', () => {
     });
 
     context('when autoValidate is true', () => {
-      beforeEach(() => {
-        attribute = new Attribute(
-          {
-            value: 3,
-            validations: {
-              isThree(value) { return value === 3; },
-            },
-            autoValidate: true,
-          }
-        );
-      });
+      context('when default value fail validation', () => {
+        beforeEach(() => {
+          attribute = new Attribute(
+            {
+              value: 5,
+              validations: {
+                isThree(value) { return value === 3; },
+              },
+              autoValidate: true,
+            }
+          );
+        });
 
-      it('should validate automatically on changes', () => {
-        attribute.value = 5;
-        expect(attribute.isValid).to.be.false;
+        it('should not trigger validation on instantiation', () => {
+          expect(attribute.isValid).to.be.true;
+        });
+
+        context('when value is changed to a valid one', () => {
+          it('should trigger the validation', () => {
+            attribute.value = 3;
+
+            expect(attribute.isValid).to.be.true;
+          });
+        });
       });
     });
 
