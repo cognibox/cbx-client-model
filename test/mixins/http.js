@@ -109,29 +109,49 @@ describe('Http', () => {
         configureHttpMock();
         data = [{}];
 
-        const result = await KlassWithAttributes.fetchAll(httpOptions);
+        const result = await KlassWithAttributes.fetchAll({ config: httpOptions });
 
         expect(result.data.length).to.eq(data.length);
       });
 
       context('when given a custom encode function', () => {
+        let value, clientOptions, params;
+
         beforeEach(() => {
           KlassWithEncoder = class extends KlassWithAttributes {
             static encode(properties) {
-              return { params: { stuff: `${properties.params.stuff}a` } };
+              return { stuff: `${properties.stuff}a` };
             }
           };
-        });
 
-        it('should use the encode function for the payload', async() => {
-          const value = Math.random();
-          const clientOptions = { params: { stuff: value } };
+          value = Math.random();
+          params = { stuff: value };
+          clientOptions = { params: params };
           httpOptions = { params: { stuff: `${value}a` } };
           configureHttpMock();
           data = [{}];
+        });
 
-          const result = await KlassWithEncoder.fetchAll(clientOptions);
+        it('should use the encode function for the payload', async() => {
+          const result = await KlassWithEncoder.fetchAll({ config: clientOptions });
           expect(result).to.not.be.undefined;
+        });
+
+        it('should not modify the original params object', async() => {
+          KlassWithEncoder.fetchAll({ config: clientOptions });
+          expect(clientOptions.params).to.equal(params);
+        });
+      });
+
+      context('when passing an url in parameters', () => {
+        it('should use the given url', async() => {
+          url = `${ Math.random() }/${ Math.random() }`;
+          configureHttpMock();
+          data = [{}];
+
+          const result = await KlassWithAttributes.fetchAll({ url: url, config: httpOptions });
+
+          expect(result.data.length).to.eq(data.length);
         });
       });
     });
@@ -194,7 +214,7 @@ describe('Http', () => {
         httpOptions = { params: { stuff: Math.random() } };
         configureHttpMock();
 
-        const result = await KlassWithAttributes.fetchOne(id, httpOptions);
+        const result = await KlassWithAttributes.fetchOne(id, { config: httpOptions });
 
         expect(result.fields.stuff.value).to.equal(data.stuff);
       });
@@ -203,7 +223,7 @@ describe('Http', () => {
         beforeEach(() => {
           KlassWithEncoder = class extends KlassWithAttributes {
             static encode(properties) {
-              return { params: { stuff: `${properties.params.stuff}a` } };
+              return { params: { stuff: `${properties.stuff}a` } };
             }
           };
         });
@@ -211,10 +231,10 @@ describe('Http', () => {
         it('should use the encode function for the payload', async() => {
           const value = Math.random();
           const clientOptions = { params: { stuff: value } };
-          httpOptions = { params: { stuff: `${value}a` } };
+          httpOptions = { stuff: `${value}a` };
           configureHttpMock();
 
-          const result = await KlassWithEncoder.fetchOne(id, clientOptions);
+          const result = await KlassWithEncoder.fetchOne(id, { config: clientOptions });
           expect(result).to.not.be.undefined;
         });
       });
@@ -317,9 +337,58 @@ describe('Http', () => {
         httpOptions = { params: { stuff: Math.random() } };
         configureHttpMock();
 
-        await model.fetch(httpOptions);
+        await model.fetch({ config: httpOptions });
 
         expect(model.fields.stuff.value).to.equal(data.stuff);
+      });
+    });
+
+    context('when passing parameters', () => {
+      it('should retrieve data using params', async() => {
+        httpOptions = { params: { stuff: Math.random() } };
+        configureHttpMock();
+        data = [{}];
+
+        await model.fetch({ config: httpOptions });
+
+        expect(model.fields.stuff.value).to.equal(data.stuff);
+      });
+
+      context('when given a custom encode function', () => {
+        let value, clientOptions, params, KlassWithEncoder;
+
+        beforeEach(() => {
+          KlassWithEncoder = class extends KlassWithAttributes {
+            static encode(properties) {
+              return { stuff: `${properties.stuff}a` };
+            }
+          };
+
+          model = new KlassWithEncoder({ id: id });
+          value = Math.random();
+          params = { stuff: value };
+          clientOptions = { params: params };
+          httpOptions = { params: { stuff: `${value}a` } };
+          configureHttpMock();
+          data = [{}];
+        });
+
+        it('should not modify the original params object', async() => {
+          await model.fetch({ config: clientOptions });
+          expect(clientOptions.params).to.equal(params);
+        });
+      });
+
+      context('when passing an url in parameters', () => {
+        it('should use the given url', async() => {
+          url = `${ Math.random() }/${ Math.random() }`;
+          configureHttpMock();
+          data = [{}];
+
+          await model.fetch({ url: url, config: httpOptions });
+
+          expect(model.fields.stuff.value).to.equal(data.stuff);
+        });
       });
     });
   });
