@@ -170,4 +170,78 @@ describe('Validation', () => {
       });
     });
   });
+
+  describe('#validateAllDry', () => {
+    let attribute;
+
+    context('without validations', () => {
+      beforeEach(() => {
+        attribute = new Attribute({ value: 3 });
+      });
+
+      it('should return an empty object', () => {
+        expect(attribute.validateAllDry()).to.be.an('object').that.is.empty;
+      });
+    });
+
+    context('with validations', () => {
+      beforeEach(() => {
+        attribute = new Attribute({
+          validations: {
+            isThree(value) {
+              return value === 3 ? true : 'not three';
+            },
+          },
+        });
+      });
+
+      context('when the value is valid', () => {
+        it('should return an empty object', () => {
+          attribute.value = 3;
+
+          expect(attribute.validateAllDry()).to.be.an('object').that.is.empty;
+        });
+      });
+
+      context('when the value is invalid', () => {
+        it('should return an object with the validation message', () => {
+          attribute.value = 0;
+
+          expect(attribute.validateAllDry()).to.deep.equal({ isThree: 'not three' });
+        });
+      });
+    });
+  });
+
+  describe('#validateOneDry', () => {
+    let attribute;
+
+    context('with an existing validation', () => {
+      beforeEach(() => {
+        attribute = new Attribute({
+          validations: {
+            isThree(value) {
+              return value === 3 ? true : 'not three';
+            },
+          },
+        });
+      });
+
+      context('when the value is valid', () => {
+        it('should return true', () => {
+          attribute.value = 3;
+
+          expect(attribute.validateOneDry('isThree')).to.be.true;
+        });
+      });
+
+      context('when the value is invalid', () => {
+        it('should return the validation message', () => {
+          attribute.value = 0;
+
+          expect(attribute.validateOneDry('isThree')).to.equal('not three');
+        });
+      });
+    });
+  });
 });
