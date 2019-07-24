@@ -214,6 +214,8 @@ describe('Validation', () => {
     return class extends Model {
       buildFields() {
         return {
+          id: new Attribute(),
+
           name: new Attribute({
             autoValidate: nameAutoValidate,
             validations: {
