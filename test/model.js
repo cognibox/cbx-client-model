@@ -200,14 +200,27 @@ describe('Model', () => {
   });
 
   describe('#set', () => {
-    context('when fields is not defined', () => {
-      class CustomModel extends Model {
-        buildFields() { return { name: new Attribute() }; }
-      }
+    context('when passing nothing', () => {
+      it('should not crash', () => {
+        class CustomModel extends Model {
+          buildFields() { return { name: new Attribute() }; }
+        }
 
-      it('should not compute it', () => {
         const model = new CustomModel();
+
+        model.set();
+      });
+    });
+
+    context('when fields is not defined', () => {
+      it('should not compute it', () => {
+        class CustomModel extends Model {
+          buildFields() { return { name: new Attribute() }; }
+        }
+        const model = new CustomModel();
+
         model.set({ something: Math.random() });
+
         expect(model.fields.something).to.be.undefined;
       });
     });
