@@ -505,9 +505,27 @@ describe('Http', () => {
           });
 
           model = new KlassWithAttributes({ attr1: modelValue });
-          const result = await model.save({ attr1: dataValue });
+          const result = await model.save({ data: { attr1: dataValue } });
 
           expect(result.data).to.deep.equal(postData);
+        });
+
+        context('with custom url', () => {
+          it('use the custom url', async() => {
+            const modelValue = Math.random();
+            const postData = { something: Math.random() };
+            const url = `${urlRoot}/${Math.random()}`;
+            httpMock().onPost(url, {
+              attr1: modelValue,
+            }).reply(() => {
+              return [200, postData];
+            });
+
+            model = new KlassWithAttributes({ attr1: modelValue });
+            const result = await model.save({ url: url });
+
+            expect(result.data).to.deep.equal(postData);
+          });
         });
 
         context('when given a custom encode function', () => {
@@ -535,7 +553,7 @@ describe('Http', () => {
               return [200, postData];
             });
 
-            const result = await model.save({ attr1: dataValue });
+            const result = await model.save({ data: { attr1: dataValue } });
 
             expect(result.data).to.deep.equal(postData);
           });
@@ -556,7 +574,7 @@ describe('Http', () => {
           });
 
           model = new KlassWithAttributes({ attr1: modelValue });
-          const result = await model.save({ mew: dataValue });
+          const result = await model.save({ data: { mew: dataValue } });
 
           expect(result.data).to.deep.equal(postData);
         });
