@@ -1,20 +1,56 @@
 import { expect } from 'chai';
 import HttpMixin from '../../lib/mixins/http.js';
 import httpMock from '../helpers/http-mock.js';
-import { Model, Attribute } from '../../lib/main.js';
+import { Model, Attribute, HasOne } from '../../lib/main.js';
 
 describe('Http', () => {
-  let urlResource, urlRoot, Klass;
+  let urlResource, urlRoot, Klass, fields;
 
   beforeEach(() => {
     urlResource = Math.random().toString();
     urlRoot = Math.random().toString();
 
+    fields = {};
+
     Klass = class extends HttpMixin(Model) {
       static urlRoot() { return urlRoot; }
 
       static urlResource() { return urlResource; }
+
+      buildFields() {
+        return fields;
+      }
     };
+  });
+
+  describe('#constructor', () => {
+    context('when having attribute', () => {
+      it('should not add baseUrl to the field', () => {
+        fields = {
+          id: new Attribute(),
+          aField: new Attribute(),
+        };
+
+        const instance = new Klass({ id: Math.random() });
+
+        expect(instance.fields.aField.baseUrl).to.be.undefined;
+      });
+    });
+
+    context('when having association', () => {
+      it('should add baseUrl to the field', () => {
+        fields = {
+          id: new Attribute(),
+          bField: new HasOne({
+            model: Klass,
+          }),
+        };
+
+        const instance = new Klass({ id: Math.random() });
+
+        expect(instance.fields.bField.baseUrl).to.not.be.undefined;
+      });
+    });
   });
 
   describe('.buildUrl', () => {
