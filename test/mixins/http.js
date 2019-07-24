@@ -28,12 +28,12 @@ describe('Http', () => {
       it('should not add baseUrl to the field', () => {
         fields = {
           id: new Attribute(),
-          aField: new Attribute(),
+          attribute: new Attribute(),
         };
 
         const instance = new Klass({ id: Math.random() });
 
-        expect(instance.fields.aField.baseUrl).to.be.undefined;
+        expect(instance.fields.attribute.baseUrl).to.be.undefined;
       });
     });
 
@@ -41,14 +41,14 @@ describe('Http', () => {
       it('should add baseUrl to the field', () => {
         fields = {
           id: new Attribute(),
-          bField: new HasOne({
+          association: new HasOne({
             model: Klass,
           }),
         };
 
         const instance = new Klass({ id: Math.random() });
 
-        expect(instance.fields.bField.baseUrl).to.not.be.undefined;
+        expect(instance.fields.association.baseUrl).to.not.be.undefined;
       });
     });
   });

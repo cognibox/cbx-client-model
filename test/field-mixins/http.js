@@ -4,10 +4,10 @@ import httpMock from '../helpers/http-mock.js';
 import { Attribute, HasOne, Model } from '../../lib/main.js';
 
 describe('Http#association', () => {
-  let associationUrl, Klass, KlassWithEncoder, data, httpOptions, associationUrlRessource, urlResource, urlRoot, AssociationKlass, id, KlassWithAssociations, model;
+  let associationUrl, Klass, data, httpOptions, associationUrlRessource, urlResource, urlRoot, AssociationKlass, id, KlassWithAssociations, model;
 
   function configureHttpMock() {
-    httpMock(associationUrl, httpOptions).onGet().reply(() => {
+    httpMock().onGet(associationUrl, httpOptions).reply(() => {
       return [200, data];
     });
   }
@@ -60,9 +60,18 @@ describe('Http#association', () => {
 
     context('when given a custom encode function', () => {
       beforeEach(() => {
-        KlassWithEncoder = class extends KlassWithAssociations {
-          static encode(properties) {
-            return { params: { stuff: `${properties.params.stuff}a` } };
+        AssociationKlass = class extends Klass {
+          buildFields() {
+            return {
+              id: new Attribute(),
+              stuff: new Attribute(),
+            };
+          }
+
+          static urlResource() { return associationUrlRessource; }
+
+          static encode(params) {
+            return { stuff: `${params.stuff}a` };
           }
         };
       });
@@ -72,10 +81,22 @@ describe('Http#association', () => {
         const clientOptions = { params: { stuff: value } };
         httpOptions = { params: { stuff: `${value}a` } };
         configureHttpMock();
-        model = new KlassWithEncoder();
+        model = new KlassWithAssociations({ id: id });
 
-        await model.fields.element.fetch(clientOptions);
+        await model.fields.element.fetch({ config: clientOptions });
         expect(model.fields.element.value.fields.stuff.value).to.eq(data.stuff);
+      });
+
+      it('should not modify the original params object', async() => {
+        const value = Math.random();
+        const params = { stuff: value };
+        const clientOptions = { params: params };
+        httpOptions = { params: { stuff: `${value}a` } };
+        configureHttpMock();
+        model = new KlassWithAssociations({ id: id });
+
+        await model.fields.element.fetch({ config: clientOptions });
+        expect(clientOptions.params).to.equal(params);
       });
     });
   });
