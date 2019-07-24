@@ -91,6 +91,13 @@ describe('Http', () => {
         const result = await KlassWithAttributes.fetchAll();
         expect(result.data.length).to.eq(data.length);
       });
+
+      context('when data is empty', () => {
+        it('should not crash', async() => {
+          data = [];
+          await KlassWithAttributes.fetchAll();
+        });
+      });
     });
 
     context('when data is an object', () => {
@@ -226,6 +233,15 @@ describe('Http', () => {
       expect(result.fields.stuff.value).to.equal(data.stuff);
     });
 
+    context('when data is undefined', () => {
+      beforeEach(() => { configureHttpMock(); });
+
+      it('should not crash', async() => {
+        data = undefined;
+        await KlassWithAttributes.fetchOne(id);
+      });
+    });
+
     context('when given a custom decode function', () => {
       beforeEach(() => {
         KlassWithDecoder = class extends KlassWithAttributes {
@@ -347,6 +363,15 @@ describe('Http', () => {
       configureHttpMock();
       await model.fetch();
       expect(model.fields.stuff.value).to.equal(data.stuff);
+    });
+
+    context('when data is undefined', () => {
+      beforeEach(() => { configureHttpMock(); });
+
+      it('should not crash', async() => {
+        data = undefined;
+        await model.fetch();
+      });
     });
 
     context('when given a custom decode function', () => {
