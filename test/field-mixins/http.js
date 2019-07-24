@@ -83,7 +83,7 @@ describe('Http#association', () => {
         configureHttpMock();
         model = new KlassWithAssociations({ id: id });
 
-        await model.fields.element.fetch({ config: clientOptions });
+        await model.fields.element.fetch({ options: clientOptions });
         expect(model.fields.element.value.fields.stuff.value).to.eq(data.stuff);
       });
 
@@ -95,7 +95,7 @@ describe('Http#association', () => {
         configureHttpMock();
         model = new KlassWithAssociations({ id: id });
 
-        await model.fields.element.fetch({ config: clientOptions });
+        await model.fields.element.fetch({ options: clientOptions });
         expect(clientOptions.params).to.equal(params);
       });
     });

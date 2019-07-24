@@ -145,7 +145,7 @@ describe('Http', () => {
         configureHttpMock();
         data = [{}];
 
-        const result = await KlassWithAttributes.fetchAll({ config: httpOptions });
+        const result = await KlassWithAttributes.fetchAll({ options: httpOptions });
 
         expect(result.data.length).to.eq(data.length);
       });
@@ -169,12 +169,12 @@ describe('Http', () => {
         });
 
         it('should use the encode function for the payload', async() => {
-          const result = await KlassWithEncoder.fetchAll({ config: clientOptions });
+          const result = await KlassWithEncoder.fetchAll({ options: clientOptions });
           expect(result).to.not.be.undefined;
         });
 
         it('should not modify the original params object', async() => {
-          KlassWithEncoder.fetchAll({ config: clientOptions });
+          KlassWithEncoder.fetchAll({ options: clientOptions });
           expect(clientOptions.params).to.equal(params);
         });
       });
@@ -185,7 +185,7 @@ describe('Http', () => {
           configureHttpMock();
           data = [{}];
 
-          const result = await KlassWithAttributes.fetchAll({ url: url, config: httpOptions });
+          const result = await KlassWithAttributes.fetchAll({ url: url, options: httpOptions });
 
           expect(result.data.length).to.eq(data.length);
         });
@@ -250,7 +250,7 @@ describe('Http', () => {
         httpOptions = { params: { stuff: Math.random() } };
         configureHttpMock();
 
-        const result = await KlassWithAttributes.fetchOne(id, { config: httpOptions });
+        const result = await KlassWithAttributes.fetchOne(id, { options: httpOptions });
 
         expect(result.fields.stuff.value).to.equal(data.stuff);
       });
@@ -270,7 +270,7 @@ describe('Http', () => {
           httpOptions = { stuff: `${value}a` };
           configureHttpMock();
 
-          const result = await KlassWithEncoder.fetchOne(id, { config: clientOptions });
+          const result = await KlassWithEncoder.fetchOne(id, { options: clientOptions });
           expect(result).to.not.be.undefined;
         });
       });
@@ -373,7 +373,7 @@ describe('Http', () => {
         httpOptions = { params: { stuff: Math.random() } };
         configureHttpMock();
 
-        await model.fetch({ config: httpOptions });
+        await model.fetch({ options: httpOptions });
 
         expect(model.fields.stuff.value).to.equal(data.stuff);
       });
@@ -385,7 +385,7 @@ describe('Http', () => {
         configureHttpMock();
         data = [{}];
 
-        await model.fetch({ config: httpOptions });
+        await model.fetch({ options: httpOptions });
 
         expect(model.fields.stuff.value).to.equal(data.stuff);
       });
@@ -410,7 +410,7 @@ describe('Http', () => {
         });
 
         it('should not modify the original params object', async() => {
-          await model.fetch({ config: clientOptions });
+          await model.fetch({ options: clientOptions });
           expect(clientOptions.params).to.equal(params);
         });
       });
@@ -421,7 +421,7 @@ describe('Http', () => {
           configureHttpMock();
           data = [{}];
 
-          await model.fetch({ url: url, config: httpOptions });
+          await model.fetch({ url: url, options: httpOptions });
 
           expect(model.fields.stuff.value).to.equal(data.stuff);
         });
