@@ -58,6 +58,13 @@ describe('Http#association', () => {
       expect(model.fields.element.value.fields.stuff.value).to.equal(data.stuff);
     });
 
+    it('should clear changes on the association', async() => {
+      configureHttpMock();
+      await model.fields.element.fetch();
+
+      expect(model.fields.element.hasChanged).to.be.false;
+    });
+
     context('when given a custom encode function', () => {
       beforeEach(() => {
         AssociationKlass = class extends Klass {

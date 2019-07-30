@@ -365,6 +365,13 @@ describe('Http', () => {
       expect(model.fields.stuff.value).to.equal(data.stuff);
     });
 
+    it('should clear changes on the model', async() => {
+      configureHttpMock();
+      await model.fetch();
+
+      expect(model.hasChanged).to.be.false;
+    });
+
     context('when data is undefined', () => {
       beforeEach(() => { configureHttpMock(); });
 
