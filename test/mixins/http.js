@@ -60,7 +60,7 @@ describe('Http', () => {
   });
 
   describe('.fetchAll', () => {
-    let KlassWithAttributes, KlassWithDecoder, KlassWithEncoder, url, data, httpOptions;
+    let KlassWithAttributes, url, data, httpOptions;
 
     function configureHttpMock() {
       httpMock().onGet(url, httpOptions).reply(() => {
@@ -126,26 +126,6 @@ describe('Http', () => {
       });
     });
 
-    context('when given a custom decode function', () => {
-      beforeEach(() => { configureHttpMock(); });
-
-      beforeEach(() => {
-        KlassWithDecoder = class extends KlassWithAttributes {
-          static decode(properties) {
-            return { id: properties.uid, stuff: properties.things };
-          }
-        };
-      });
-
-      it('should use the decode function', async() => {
-        data = [{ uid: 1, things: 'foo' }];
-        const result = await KlassWithDecoder.fetchAll();
-        const model = result.data[0];
-        expect(model.fields.id.value).to.eq(data[0].uid);
-        expect(model.fields.stuff.value).to.eq(data[0].things);
-      });
-    });
-
     context('when passing parameters', () => {
       it('should retrieve data using params', async() => {
         httpOptions = { params: { stuff: Math.random() } };
@@ -155,35 +135,6 @@ describe('Http', () => {
         const result = await KlassWithAttributes.fetchAll({ options: httpOptions });
 
         expect(result.data.length).to.eq(data.length);
-      });
-
-      context('when given a custom encode function', () => {
-        let value, clientOptions, params;
-
-        beforeEach(() => {
-          KlassWithEncoder = class extends KlassWithAttributes {
-            static encode(properties) {
-              return { stuff: `${properties.stuff}a` };
-            }
-          };
-
-          value = Math.random();
-          params = { stuff: value };
-          clientOptions = { params: params };
-          httpOptions = { params: { stuff: `${value}a` } };
-          configureHttpMock();
-          data = [{}];
-        });
-
-        it('should use the encode function for the payload', async() => {
-          const result = await KlassWithEncoder.fetchAll({ options: clientOptions });
-          expect(result).to.not.be.undefined;
-        });
-
-        it('should not modify the original params object', async() => {
-          KlassWithEncoder.fetchAll({ options: clientOptions });
-          expect(clientOptions.params).to.equal(params);
-        });
       });
 
       context('when passing an url in parameters', () => {
@@ -201,7 +152,7 @@ describe('Http', () => {
   });
 
   describe('.fetchOne', () => {
-    let KlassWithAttributes, KlassWithDecoder, KlassWithEncoder, id, url, data, httpOptions;
+    let KlassWithAttributes, id, url, data, httpOptions;
 
     function configureHttpMock() {
       httpMock().onGet(url, httpOptions).reply(() => {
@@ -242,25 +193,6 @@ describe('Http', () => {
       });
     });
 
-    context('when given a custom decode function', () => {
-      beforeEach(() => {
-        KlassWithDecoder = class extends KlassWithAttributes {
-          static decode(properties) {
-            return { id: properties.uid, stuff: properties.things };
-          }
-        };
-      });
-
-      it('should use the decode function', async() => {
-        configureHttpMock();
-        data = { things: 'foo' };
-
-        const result = await KlassWithDecoder.fetchOne(id);
-
-        expect(result.fields.stuff.value).to.eq(data.things);
-      });
-    });
-
     context('when passing parameters', () => {
       it('should retrieve data using params', async() => {
         httpOptions = { params: { stuff: Math.random() } };
@@ -269,26 +201,6 @@ describe('Http', () => {
         const result = await KlassWithAttributes.fetchOne(id, { options: httpOptions });
 
         expect(result.fields.stuff.value).to.equal(data.stuff);
-      });
-
-      context('when given a custom encode function', () => {
-        beforeEach(() => {
-          KlassWithEncoder = class extends KlassWithAttributes {
-            static encode(properties) {
-              return { params: { stuff: `${properties.stuff}a` } };
-            }
-          };
-        });
-
-        it('should use the encode function for the payload', async() => {
-          const value = Math.random();
-          const clientOptions = { params: { stuff: value } };
-          httpOptions = { stuff: `${value}a` };
-          configureHttpMock();
-
-          const result = await KlassWithEncoder.fetchOne(id, { options: clientOptions });
-          expect(result).to.not.be.undefined;
-        });
       });
     });
   });
@@ -337,7 +249,7 @@ describe('Http', () => {
   });
 
   describe('#fetch', () => {
-    let model, KlassWithAttributes, KlassWithDecoder, id, url, data, httpOptions;
+    let model, KlassWithAttributes, id, url, data, httpOptions;
 
     function configureHttpMock() {
       httpMock().onGet(url, httpOptions).reply(() => {
@@ -381,25 +293,6 @@ describe('Http', () => {
       });
     });
 
-    context('when given a custom decode function', () => {
-      beforeEach(() => {
-        KlassWithDecoder = class extends KlassWithAttributes {
-          static decode(properties) {
-            return { id: properties.uid, stuff: properties.things };
-          }
-        };
-      });
-
-      it('should use the decode function', async() => {
-        configureHttpMock();
-        data = { things: 'foo' };
-
-        const result = await KlassWithDecoder.fetchOne(id);
-
-        expect(result.fields.stuff.value).to.eq(data.things);
-      });
-    });
-
     context('when passing parameters', () => {
       it('should retrieve data using params', async() => {
         httpOptions = { params: { stuff: Math.random() } };
@@ -420,31 +313,6 @@ describe('Http', () => {
         await model.fetch({ options: httpOptions });
 
         expect(model.fields.stuff.value).to.equal(data.stuff);
-      });
-
-      context('when given a custom encode function', () => {
-        let value, clientOptions, params, KlassWithEncoder;
-
-        beforeEach(() => {
-          KlassWithEncoder = class extends KlassWithAttributes {
-            static encode(properties) {
-              return { stuff: `${properties.stuff}a` };
-            }
-          };
-
-          model = new KlassWithEncoder({ id: id });
-          value = Math.random();
-          params = { stuff: value };
-          clientOptions = { params: params };
-          httpOptions = { params: { stuff: `${value}a` } };
-          configureHttpMock();
-          data = [{}];
-        });
-
-        it('should not modify the original params object', async() => {
-          await model.fetch({ options: clientOptions });
-          expect(clientOptions.params).to.equal(params);
-        });
       });
 
       context('when passing an url in parameters', () => {
@@ -488,13 +356,20 @@ describe('Http', () => {
   });
 
   describe('#save', () => {
-    let model, KlassWithAttributes, KlassWithEncoder;
+    let model, KlassWithAttributes;
 
     beforeEach(() => {
       KlassWithAttributes = class extends Klass {
         static primaryKey() { return 'uid'; }
 
-        buildFields() { return { uid: new Attribute(), attr1: new Attribute(), attr2: new Attribute(), attr3: new Attribute() }; }
+        buildFields() {
+          return {
+            uid: new Attribute(),
+            attr1: new Attribute({ value: '' }),
+            attr2: new Attribute(),
+            attr3: new Attribute(),
+          };
+        }
       };
     });
 
@@ -530,37 +405,6 @@ describe('Http', () => {
 
             model = new KlassWithAttributes({ attr1: modelValue });
             const result = await model.save({ url: url });
-
-            expect(result.data).to.deep.equal(postData);
-          });
-        });
-
-        context('when given a custom encode function', () => {
-          beforeEach(() => {
-            KlassWithEncoder = class extends KlassWithAttributes {
-              static encode(properties) {
-                Object.keys(properties).forEach((key) => {
-                  if (properties[key]) properties[key] = `${properties[key]}a`;
-                });
-                return properties;
-              }
-            };
-          });
-
-          it('should use the encode function', async() => {
-            const modelValue = Math.random();
-            const dataValue = modelValue + 5;
-            const postData = { something: Math.random() };
-            const url = `${urlRoot}/${urlResource}`;
-
-            model = new KlassWithEncoder({ attr1: modelValue });
-            httpMock().onPost(url, {
-              attr1: dataValue + 'a',
-            }).reply(() => {
-              return [200, postData];
-            });
-
-            const result = await model.save({ data: { attr1: dataValue } });
 
             expect(result.data).to.deep.equal(postData);
           });

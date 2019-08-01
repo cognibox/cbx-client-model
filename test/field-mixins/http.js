@@ -64,47 +64,5 @@ describe('Http#association', () => {
 
       expect(model.fields.element.hasChanged).to.be.false;
     });
-
-    context('when given a custom encode function', () => {
-      beforeEach(() => {
-        AssociationKlass = class extends Klass {
-          buildFields() {
-            return {
-              id: new Attribute(),
-              stuff: new Attribute(),
-            };
-          }
-
-          static urlResource() { return associationUrlRessource; }
-
-          static encode(params) {
-            return { stuff: `${params.stuff}a` };
-          }
-        };
-      });
-
-      it('should use the encode function for the payload', async() => {
-        const value = Math.random();
-        const clientOptions = { params: { stuff: value } };
-        httpOptions = { params: { stuff: `${value}a` } };
-        configureHttpMock();
-        model = new KlassWithAssociations({ id: id });
-
-        await model.fields.element.fetch({ options: clientOptions });
-        expect(model.fields.element.value.fields.stuff.value).to.eq(data.stuff);
-      });
-
-      it('should not modify the original params object', async() => {
-        const value = Math.random();
-        const params = { stuff: value };
-        const clientOptions = { params: params };
-        httpOptions = { params: { stuff: `${value}a` } };
-        configureHttpMock();
-        model = new KlassWithAssociations({ id: id });
-
-        await model.fields.element.fetch({ options: clientOptions });
-        expect(clientOptions.params).to.equal(params);
-      });
-    });
   });
 });
