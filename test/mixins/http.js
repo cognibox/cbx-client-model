@@ -362,14 +362,7 @@ describe('Http', () => {
       KlassWithAttributes = class extends Klass {
         static primaryKey() { return 'uid'; }
 
-        buildFields() {
-          return {
-            uid: new Attribute(),
-            attr1: new Attribute({ value: '' }),
-            attr2: new Attribute(),
-            attr3: new Attribute(),
-          };
-        }
+        buildFields() { return { uid: new Attribute(), attr1: new Attribute({ value: '' }), attr2: new Attribute(), attr3: new Attribute() }; }
       };
     });
 
