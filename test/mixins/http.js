@@ -356,14 +356,49 @@ describe('Http', () => {
   });
 
   describe('#save', () => {
-    let model, KlassWithAttributes;
+    let AssociationKlass, model, KlassWithAttributes;
 
     beforeEach(() => {
+      AssociationKlass = class extends Klass {
+        buildFields() {
+          return {
+            id: new Attribute(),
+          };
+        }
+      };
+
       KlassWithAttributes = class extends Klass {
         static primaryKey() { return 'uid'; }
 
-        buildFields() { return { uid: new Attribute(), attr1: new Attribute({ value: '' }), attr2: new Attribute(), attr3: new Attribute() }; }
+        buildFields() {
+          return {
+            uid: new Attribute(),
+            attr1: new Attribute(),
+            attr2: new Attribute(),
+            attr3: new Attribute(),
+            assoc: new HasOne({
+              model: AssociationKlass,
+            }),
+          };
+        }
       };
+    });
+
+    context('when the model has associations', () => {
+      context('when the association hasChanged', () => {
+        it('should not send the association', async() => {
+          const url = `${urlRoot}/${urlResource}`;
+          httpMock().onPost(url).reply(() => {
+            return [200];
+          });
+
+          model = new KlassWithAttributes({ assoc: new AssociationKlass({ id: 1 }) });
+          model.fields.assoc.value.fields.id.value = 1;
+          const result = await model.save();
+
+          expect(result).to.not.be.undefined;
+        });
+      });
     });
 
     context('when passing data', () => {
