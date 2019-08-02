@@ -122,4 +122,37 @@ describe('Association', () => {
       });
     });
   });
+
+  describe('model with Associations', () => {
+    let ModelWithAssociations, OtherModelWithAssociations, model;
+
+    context('when two models reference one another', () => {
+      beforeEach(() => {
+        ModelWithAssociations = class extends Model {
+          buildFields() {
+            return {
+              id: new Attribute({ value: 1 }),
+              assoc: new HasOne({ value: 1, model: OtherModelWithAssociations }),
+            };
+          }
+        };
+
+        OtherModelWithAssociations = class extends Model {
+          buildFields() {
+            return {
+              id: new Attribute({ value: 1 }),
+              assoc: new HasOne({ value: 1, model: ModelWithAssociations }),
+            };
+          }
+        };
+      });
+
+      context('on construction', () => {
+        it('should not cause a stack overflow', () => {
+          model = new ModelWithAssociations();
+          expect(model).to.not.be.undefined;
+        });
+      });
+    });
+  });
 });
