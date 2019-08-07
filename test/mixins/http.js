@@ -293,6 +293,16 @@ describe('Http', () => {
       });
     });
 
+    context('when the attribute is falsey and not undefined', () => {
+      beforeEach(() => { configureHttpMock(); });
+
+      it('should set the attribute', async() => {
+        data = { stuff: false };
+        await model.fetch();
+        expect(model.fields.stuff.value).to.be.false;
+      });
+    });
+
     context('when passing parameters', () => {
       it('should retrieve data using params', async() => {
         httpOptions = { params: { stuff: Math.random() } };
