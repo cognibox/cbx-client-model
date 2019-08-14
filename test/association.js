@@ -13,7 +13,7 @@ describe('Association', () => {
   beforeEach(() => {
     CustomClass = class extends Model {
       buildFields() {
-        return { id: new Attribute() };
+        return { id: new Attribute(), name: new Attribute() };
       }
     };
   });
@@ -102,6 +102,40 @@ describe('Association', () => {
       context('initially', () => {
         it('should return false', () => {
           expect(association.hasChanged).to.be.false;
+        });
+      });
+
+      context('when an element is already present', () => {
+        let id;
+
+        beforeEach(() => {
+          id = Math.random();
+          association.value.push(new CustomClass({ id, name: Math.random() }));
+          association.setPristine();
+        });
+
+        it('should return false', () => {
+          expect(association.hasChanged).to.be.false;
+        });
+
+        context('when removing the element', () => {
+          beforeEach(() => {
+            association.value.pop();
+          });
+
+          it('should return true', () => {
+            expect(association.hasChanged).to.be.true;
+          });
+
+          context('when adding the element again with one with the same id but a different name', () => {
+            beforeEach(() => {
+              association.value.push(new CustomClass({ id, name: Math.random() }));
+            });
+
+            it('should return false', () => {
+              expect(association.hasChanged).to.be.false;
+            });
+          });
         });
       });
 
