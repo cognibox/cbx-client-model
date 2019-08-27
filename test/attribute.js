@@ -36,11 +36,13 @@ describe('Attribute', () => {
   });
 
   describe('set', () => {
-    let model;
+    let model, spyTrigger, spyParse;
     const originalValue = Math.random();
 
     beforeEach(() => {
       model = new Attribute({ value: originalValue });
+      spyTrigger = sinon.spy(model, 'trigger');
+      spyParse = sinon.spy(model, 'parse');
     });
 
     describe('when new value is different from old value', () => {
@@ -51,6 +53,8 @@ describe('Attribute', () => {
         model.value = newValue;
       });
 
+      it('should trigger the parse', () => { expect(spyParse).to.have.been.called; });
+      it('should trigger the change event', () => { expect(spyTrigger).to.have.been.calledWith('change'); });
       it('should store the new value', () => { expect(model.value).to.equal(newValue); });
       it('should set hasChanged to true', () => { expect(model.hasChanged).to.be.true; });
       it('should set isDirty to true', () => { expect(model.isDirty).to.be.true; });
@@ -66,6 +70,8 @@ describe('Attribute', () => {
     describe('when new value is not different from old value', () => {
       beforeEach(() => { model.value = originalValue; });
 
+      it('should not trigger the parse', () => { expect(spyParse).to.not.have.been.called; });
+      it('should not trigger the change event', () => { expect(spyTrigger).to.not.have.been.calledWith('change'); });
       it('should keep hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
       it('should keep isDirty to false', () => { expect(model.isDirty).to.be.false; });
     });
@@ -77,7 +83,7 @@ describe('Attribute', () => {
 
         model.value = originalValue + 1;
 
-        expect(callback).to.have.been.calledWith(model.value, originalValue);
+        expect(callback).to.have.been.calledWith({ value: model.value, originalValue, oldValue: originalValue });
       });
     });
   });
