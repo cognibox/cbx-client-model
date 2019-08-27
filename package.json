@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "test": "mocha --recursive --require @babel/register",
+    "release": "node ./bin/release.js",
     "lint": "./node_modules/.bin/eslint . --ext .js",
     "build": "babel lib -d dist"
   },
