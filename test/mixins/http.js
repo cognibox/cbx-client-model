@@ -77,7 +77,7 @@ describe('Http', () => {
       };
     });
 
-    context("when data is an array with a null value", function() {
+    context('when data is an array with a null value', () => {
       beforeEach(() => { configureHttpMock(); });
 
       it('should convert data to instances', async() => {
@@ -203,7 +203,7 @@ describe('Http', () => {
       });
     });
 
-    context("when data is null", function() {
+    context('when data is null', () => {
       beforeEach(() => { configureHttpMock(); });
 
       it('should not crash', async() => {
