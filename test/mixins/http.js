@@ -77,6 +77,16 @@ describe('Http', () => {
       };
     });
 
+    context('when data is an array with a null value', () => {
+      beforeEach(() => { configureHttpMock(); });
+
+      it('should convert data to instances', async() => {
+        data = [{}, undefined, null];
+        const result = await KlassWithAttributes.fetchAll();
+        expect(result.data[0]).to.be.instanceof(KlassWithAttributes);
+      });
+    });
+
     context('when data is an array', () => {
       beforeEach(() => { configureHttpMock(); });
 
@@ -189,6 +199,15 @@ describe('Http', () => {
 
       it('should not crash', async() => {
         data = undefined;
+        await KlassWithAttributes.fetchOne(id);
+      });
+    });
+
+    context('when data is null', () => {
+      beforeEach(() => { configureHttpMock(); });
+
+      it('should not crash', async() => {
+        data = null;
         await KlassWithAttributes.fetchOne(id);
       });
     });
