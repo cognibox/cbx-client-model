@@ -28,6 +28,16 @@ describe('Association', () => {
 
             expect(association.value).to.equal(value);
           });
+
+          context('when accessing value', () => {
+            it('should not have changed', () => {
+              const value = new CustomClass();
+              const association = new BelongsTo({ value: value, model: CustomClass });
+
+              association.value;
+              expect(association.hasChanged).to.be.false;
+            });
+          });
         });
 
         context('when value is not an instance of the association class', () => {
@@ -37,6 +47,16 @@ describe('Association', () => {
 
             expect(association.value).to.be.instanceof(CustomClass);
             expect(association.value.fields.id.value).to.equal(value.id);
+          });
+
+          context('when accessing value', () => {
+            it('should not have changed', () => {
+              const value = { id: Math.random() };
+              const association = new BelongsTo({ value: value, model: CustomClass });
+
+              association.value;
+              expect(association.hasChanged).to.be.false;
+            });
           });
         });
       });
