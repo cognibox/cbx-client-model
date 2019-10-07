@@ -6,8 +6,8 @@ import { Attribute, HasOne, Model } from '../../lib/main.js';
 describe('Http#association', () => {
   let associationUrl, Klass, data, httpOptions, associationUrlRessource, urlResource, urlRoot, AssociationKlass, id, KlassWithAssociations, model;
 
-  function configureHttpMock() {
-    httpMock().onGet(associationUrl, httpOptions).reply(() => {
+  function configureHttpMock(url) {
+    httpMock().onGet(url || associationUrl, httpOptions).reply(() => {
       return [200, data];
     });
   }
@@ -44,6 +44,7 @@ describe('Http#association', () => {
         return {
           id: new Attribute(),
           element: new HasOne({ model: AssociationKlass }),
+          customElement: new HasOne({ model: AssociationKlass, url: 'pew' }),
         };
       }
     };
@@ -63,6 +64,14 @@ describe('Http#association', () => {
       await model.fields.element.fetch();
 
       expect(model.fields.element.hasChanged).to.be.false;
+    });
+
+    context('with custom url', () => {
+      it('should set association model properties', async() => {
+        configureHttpMock('pew');
+        await model.fields.customElement.fetch();
+        expect(model.fields.customElement.value.fields.stuff.value).to.equal(data.stuff);
+      });
     });
   });
 });
