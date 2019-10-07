@@ -45,6 +45,7 @@ describe('Http#association', () => {
           id: new Attribute(),
           element: new HasOne({ model: AssociationKlass }),
           customElement: new HasOne({ model: AssociationKlass, url: 'pew' }),
+          customElementFn: new HasOne({ model: AssociationKlass, url: () => 'pew/5' }),
         };
       }
     };
@@ -71,6 +72,14 @@ describe('Http#association', () => {
         configureHttpMock('pew');
         await model.fields.customElement.fetch();
         expect(model.fields.customElement.value.fields.stuff.value).to.equal(data.stuff);
+      });
+
+      context('when custom url is function', () => {
+        it('should set association model properties', async() => {
+          configureHttpMock('pew/5');
+          await model.fields.customElementFn.fetch();
+          expect(model.fields.customElementFn.value.fields.stuff.value).to.equal(data.stuff);
+        });
       });
     });
   });
