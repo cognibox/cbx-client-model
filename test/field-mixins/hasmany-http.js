@@ -20,7 +20,7 @@ describe('Http#hasManyAssociation', () => {
     hasManyAssociationUrl = `${urlRoot}/${urlResource}/${id}/${hasManyAssociationUrlRessource}`;
     data = {
       data: [{ stuff: Math.random() }, { stuff: Math.random() }],
-      meta: { count: 1}
+      meta: { count: 1 },
     };
 
     Klass = class extends HttpMixin(Model) {
