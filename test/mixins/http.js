@@ -348,6 +348,16 @@ describe('Http', () => {
       });
     });
 
+    context('when the attribute is an array', () => {
+      beforeEach(() => { configureHttpMock(); });
+
+      it('should set the attribute', async() => {
+        data = { stuff: ['mew'] };
+        await model.fetch();
+        expect(model.fields.stuff.value).to.deep.equal(['mew']);
+      });
+    });
+
     context('when passing parameters', () => {
       it('should retrieve data using params', async() => {
         httpOptions = { params: { stuff: Math.random() } };
