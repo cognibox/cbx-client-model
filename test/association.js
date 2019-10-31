@@ -180,32 +180,48 @@ describe('Association', () => {
   describe('model with Associations', () => {
     let ModelWithAssociations, OtherModelWithAssociations, model;
 
+    beforeEach(() => {
+      ModelWithAssociations = class extends Model {
+        buildFields() {
+          return {
+            id: new Attribute({ value: 1 }),
+            assoc: new HasOne({ value: {}, model: OtherModelWithAssociations }),
+          };
+        }
+      };
+
+      OtherModelWithAssociations = class extends Model {
+        buildFields() {
+          return {
+            id: new Attribute({ value: 1 }),
+            assoc: new HasOne({ value: {}, model: ModelWithAssociations }),
+          };
+        }
+      };
+    });
+
     context('when two models reference one another', () => {
-      beforeEach(() => {
-        ModelWithAssociations = class extends Model {
-          buildFields() {
-            return {
-              id: new Attribute({ value: 1 }),
-              assoc: new HasOne({ value: 1, model: OtherModelWithAssociations }),
-            };
-          }
-        };
-
-        OtherModelWithAssociations = class extends Model {
-          buildFields() {
-            return {
-              id: new Attribute({ value: 1 }),
-              assoc: new HasOne({ value: 1, model: ModelWithAssociations }),
-            };
-          }
-        };
-      });
-
       context('on construction', () => {
         it('should not cause a stack overflow', () => {
           model = new ModelWithAssociations();
           expect(model).to.not.be.undefined;
         });
+      });
+    });
+
+    context('when setting a standard object as value', () => {
+      it('should return a new instance', () => {
+        const modelWithAss = new ModelWithAssociations({ assoc: { id: Math.random() } });
+        const newValue = Math.random();
+        modelWithAss.fields.assoc.value = { id: newValue };
+        expect(modelWithAss.fields.assoc.value.fields.id.value).to.equal(newValue);
+      });
+    });
+
+    context('when initalizing a new model instance with association', () => {
+      it('should equal itself when calling the association value', () => {
+        const modelWithAss = new ModelWithAssociations({ assoc: { id: Math.random() } });
+        expect(modelWithAss.fields.assoc.value).to.equal(modelWithAss.fields.assoc.value);
       });
     });
   });
