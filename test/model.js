@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import Model from '../lib/model.js';
 import Attribute from '../lib/attribute.js';
+import { HasOne } from '../lib/association.js';
 
 describe('Model', () => {
   describe('#constructor', () => {
@@ -113,6 +114,44 @@ describe('Model', () => {
           beforeEach(() => { customInstance.fields.firstAttribute.value = firstAttributeValue; });
 
           it('should be false', () => { expect(customInstance.hasChanged).to.be.false; });
+        });
+      });
+    });
+
+    context('model having association', () => {
+      class OtherModel extends Model {
+        buildFields() {
+          return {
+            id: new Attribute(),
+          };
+        }
+      }
+
+      class CustomModel extends Model {
+        buildFields() {
+          return {
+            association: new HasOne({ value: {}, model: OtherModel }),
+            otherAssociation: new HasOne({ model: OtherModel }),
+          };
+        }
+      }
+
+      context('when given a default value', () => {
+        let model;
+
+        beforeEach(() => {
+          model = new CustomModel({ association: { id: Math.random() } });
+        });
+
+        it('should be false', () => {
+          expect(model.hasChanged).to.be.false;
+        });
+
+        context('when accessing association', () => {
+          it('should not change hasChanged value', () => {
+            model.fields.otherAssociation.value;
+            expect(model.hasChanged).to.be.false;
+          });
         });
       });
     });

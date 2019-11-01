@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import HttpMixin from '../../lib/mixins/http.js';
 import httpMock from '../helpers/http-mock.js';
-import { Model, Attribute, HasOne } from '../../lib/main.js';
+import { Model, Attribute, HasOne, HasMany } from '../../lib/main.js';
 
 describe('Http', () => {
   let urlResource, urlRoot, Klass, fields;
@@ -75,6 +75,16 @@ describe('Http', () => {
       KlassWithAttributes = class extends Klass {
         buildFields() { return { id: new Attribute(), stuff: new Attribute() }; }
       };
+    });
+
+    context('when data is an array with a null value', () => {
+      beforeEach(() => { configureHttpMock(); });
+
+      it('should convert data to instances', async() => {
+        data = [{}, undefined, null];
+        const result = await KlassWithAttributes.fetchAll();
+        expect(result.data[0]).to.be.instanceof(KlassWithAttributes);
+      });
     });
 
     context('when data is an array', () => {
@@ -193,6 +203,15 @@ describe('Http', () => {
       });
     });
 
+    context('when data is null', () => {
+      beforeEach(() => { configureHttpMock(); });
+
+      it('should not crash', async() => {
+        data = null;
+        await KlassWithAttributes.fetchOne(id);
+      });
+    });
+
     context('when passing parameters', () => {
       it('should retrieve data using params', async() => {
         httpOptions = { params: { stuff: Math.random() } };
@@ -249,7 +268,7 @@ describe('Http', () => {
   });
 
   describe('#fetch', () => {
-    let model, KlassWithAttributes, id, url, data, httpOptions;
+    let AssociationKlass, model, KlassWithAttributes, id, url, data, httpOptions;
 
     function configureHttpMock() {
       httpMock().onGet(url, httpOptions).reply(() => {
@@ -264,8 +283,22 @@ describe('Http', () => {
         stuff: Math.random(),
       };
 
+      AssociationKlass = class extends Klass {
+        buildFields() {
+          return {
+            id: new Attribute(),
+          };
+        }
+      };
+
       KlassWithAttributes = class extends Klass {
-        buildFields() { return { id: new Attribute(), stuff: new Attribute() }; }
+        buildFields() {
+          return {
+            id: new Attribute(),
+            stuff: new Attribute(),
+            assoc: new HasMany({ model: AssociationKlass }),
+          };
+        }
       };
 
       model = new KlassWithAttributes({ id: id });
@@ -293,6 +326,38 @@ describe('Http', () => {
       });
     });
 
+    context('when the server returns association data', () => {
+      it('should set the association', async() => {
+        data = { assoc: [{ id: 1 }] };
+        configureHttpMock();
+        await model.fetch();
+
+        expect(model.fields.assoc.value.length).to.equal(1);
+        expect(model.fields.assoc.value[0]).to.be.an.instanceOf(AssociationKlass);
+        expect(model.fields.assoc.value[0].fields.id.value).to.equal(1);
+      });
+    });
+
+    context('when the attribute is falsey and not undefined', () => {
+      beforeEach(() => { configureHttpMock(); });
+
+      it('should set the attribute', async() => {
+        data = { stuff: false };
+        await model.fetch();
+        expect(model.fields.stuff.value).to.be.false;
+      });
+    });
+
+    context('when the attribute is an array', () => {
+      beforeEach(() => { configureHttpMock(); });
+
+      it('should set the attribute', async() => {
+        data = { stuff: ['mew'] };
+        await model.fetch();
+        expect(model.fields.stuff.value).to.deep.equal(['mew']);
+      });
+    });
+
     context('when passing parameters', () => {
       it('should retrieve data using params', async() => {
         httpOptions = { params: { stuff: Math.random() } };
@@ -308,7 +373,6 @@ describe('Http', () => {
       it('should retrieve data using params', async() => {
         httpOptions = { params: { stuff: Math.random() } };
         configureHttpMock();
-        data = [{}];
 
         await model.fetch({ options: httpOptions });
 
@@ -319,7 +383,6 @@ describe('Http', () => {
         it('should use the given url', async() => {
           url = `${ Math.random() }/${ Math.random() }`;
           configureHttpMock();
-          data = [{}];
 
           await model.fetch({ url: url, options: httpOptions });
 
