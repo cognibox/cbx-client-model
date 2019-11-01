@@ -257,7 +257,7 @@ describe('Model', () => {
         buildFields() { return { name: new Attribute() }; }
       }
 
-      model = new CustomModel({ name: Math.random });
+      model = new CustomModel({ name: Math.random() });
       model.fields.name.value += 5;
 
       model.setPristine();
@@ -273,6 +273,39 @@ describe('Model', () => {
 
     it('should set hasChanged to false', () => {
       expect(model.hasChanged).to.be.false;
+    });
+  });
+
+  describe('#reset', () => {
+    let model, oldValue, newValue;
+
+    beforeEach(() => {
+      class CustomModel extends Model {
+        buildFields() { return { name: new Attribute() }; }
+      }
+
+      oldValue = Math.random();
+      newValue = Math.random();
+      model = new CustomModel({ name: oldValue });
+      model.setPristine();
+      model.fields.name.value = newValue;
+    });
+
+    context('when model has changed', () => {
+      beforeEach(() => {
+        model.fields.name.value = newValue;
+      });
+
+      it('should clear changed', () => {
+        expect(model.hasChanged).to.be.true;
+        model.reset();
+        expect(model.hasChanged).to.be.false;
+      });
+
+      it('should reset to old values', () => {
+        model.reset();
+        expect(model.fields.name.value).to.equal(oldValue);
+      });
     });
   });
 });
