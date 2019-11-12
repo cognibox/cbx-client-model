@@ -3,6 +3,8 @@ import sinonChai from 'sinon-chai';
 import { BelongsTo, HasMany, HasOne } from '../lib/association.js';
 import Attribute from '../lib/attribute.js';
 import Model from '../lib/model.js';
+import validationMixin from '../lib/mixins/validation.js';
+import validationFieldMixin from '../lib/field-mixins/validation.js';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -181,16 +183,29 @@ describe('Association', () => {
     let ModelWithAssociations, OtherModelWithAssociations, model;
 
     beforeEach(() => {
-      ModelWithAssociations = class extends Model {
+      ModelWithAssociations = class extends validationMixin(Model) {
         buildFields() {
           return {
             id: new Attribute({ value: 1 }),
             assoc: new HasOne({ value: {}, model: OtherModelWithAssociations }),
+            validatedAssoc: new (validationFieldMixin(HasOne))({
+              value: {},
+              model: OtherModelWithAssociations,
+              validations: {
+                required: (value) => {
+                  if (value.fields.id.value !== 2) {
+                    return 'must be 2';
+                  }
+
+                  return true;
+                },
+              },
+            }),
           };
         }
       };
 
-      OtherModelWithAssociations = class extends Model {
+      OtherModelWithAssociations = class extends validationMixin(Model) {
         buildFields() {
           return {
             id: new Attribute({ value: 1 }),
@@ -205,6 +220,39 @@ describe('Association', () => {
         it('should not cause a stack overflow', () => {
           model = new ModelWithAssociations();
           expect(model).to.not.be.undefined;
+        });
+      });
+    });
+
+    context('validations', () => {
+      context('when invalid', () => {
+        beforeEach(() => {
+          model = new ModelWithAssociations();
+        });
+
+        it('should be invalid', () => {
+          expect(model.isValid).to.be.false;
+        });
+
+        context('when setting a valid value', () => {
+          beforeEach(() => {
+            model.fields.validatedAssoc.value.fields.id.value = 2;
+          });
+
+          it('should be valid', () => {
+            expect(model.isValid).to.be.true;
+          });
+        });
+
+        context('when setting the whole association and re-setting the value', () => {
+          beforeEach(() => {
+            model.fields.validatedAssoc.value = new OtherModelWithAssociations({ id: 1 });
+            model.fields.validatedAssoc.value.fields.id.value = 2;
+          });
+
+          it('should be valid', () => {
+            expect(model.isValid).to.be.true;
+          });
         });
       });
     });
