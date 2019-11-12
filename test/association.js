@@ -187,6 +187,7 @@ describe('Association', () => {
         buildFields() {
           return {
             id: new Attribute({ value: 1 }),
+            noDefaultAssoc: new HasOne({ model: OtherModelWithAssociations }),
             assoc: new HasOne({ value: {}, model: OtherModelWithAssociations }),
             validatedAssoc: new (validationFieldMixin(HasOne))({
               value: {},
@@ -254,6 +255,14 @@ describe('Association', () => {
             expect(model.isValid).to.be.true;
           });
         });
+      });
+    });
+
+    context('initially', () => {
+      it('should have a value property', () => {
+        model = new ModelWithAssociations();
+
+        expect('value' in model.fields.noDefaultAssoc).to.be.true;
       });
     });
 
