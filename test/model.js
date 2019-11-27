@@ -315,6 +315,26 @@ describe('Model', () => {
     });
   });
 
+  describe('trigger', () => {
+    let model;
+
+    context('pristine', () => {
+      class CustomModel extends Model {
+        buildFields() { return { name: new Attribute() }; }
+      }
+
+      context('when field is set pristine', () => {
+        it('should calculate changes', () => {
+          model = new CustomModel({ name: Math.random() });
+          model.fields.name.value += 5;
+          model.fields.name.setPristine();
+
+          expect(model.hasChanged).to.be.false;
+        });
+      });
+    });
+  });
+
   describe('#reset', () => {
     let model, oldValue, newValue;
 
