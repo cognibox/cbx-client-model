@@ -10,22 +10,22 @@
     "build": "babel lib -d dist"
   },
   "dependencies": {
-    "axios": "^0.18.0",
-    "axios-mock-adapter": "^1.16.0",
-    "lodash": "^4.17.10"
+    "axios": "^0.19.2",
+    "axios-mock-adapter": "^1.17.0",
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
-    "@babel/plugin-transform-runtime": "^7.0.0-beta.40",
-    "@babel/runtime": "7.0.0-beta.55",
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.4.0",
-    "@babel/preset-env": "^7.4.2",
-    "@babel/register": "^7.4.0",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.4",
+    "@babel/register": "^7.8.3",
+    "@babel/runtime": "7.8.4",
     "chai": "^4.2.0",
-    "eslint": "^4.19.1",
-    "mocha": "^6.0.2",
-    "sinon": "^7.3.0",
-    "sinon-chai": "^3.3.0"
+    "eslint": "^6.2.2",
+    "mocha": "^7.0.1",
+    "sinon": "^8.1.1",
+    "sinon-chai": "^3.4.0"
   },
   "files": [
     "dist"
