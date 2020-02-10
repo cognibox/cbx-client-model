@@ -36,54 +36,85 @@ describe('Attribute', () => {
   });
 
   describe('set', () => {
-    let model, spyTrigger, spyParse;
+    let model;
     const originalValue = Math.random();
 
-    beforeEach(() => {
-      model = new Attribute({ value: originalValue });
-      spyTrigger = sinon.spy(model, 'trigger');
-      spyParse = sinon.spy(model, 'parse');
-    });
-
-    describe('when new value is different from old value', () => {
-      let newValue;
+    context('with basic attribute', () => {
+      let spyTrigger, spyParse;
 
       beforeEach(() => {
-        newValue = originalValue + 1;
-        model.value = newValue;
+        model = new Attribute({ value: originalValue });
+        spyTrigger = sinon.spy(model, 'trigger');
+        spyParse = sinon.spy(model, 'parse');
       });
 
-      it('should trigger the parse', () => { expect(spyParse).to.have.been.called; });
-      it('should trigger the change event', () => { expect(spyTrigger).to.have.been.calledWith('change'); });
-      it('should store the new value', () => { expect(model.value).to.equal(newValue); });
-      it('should set hasChanged to true', () => { expect(model.hasChanged).to.be.true; });
-      it('should set isDirty to true', () => { expect(model.isDirty).to.be.true; });
+      describe('when new value is different from old value', () => {
+        let newValue;
 
-      describe('when value is set back to the original value', () => {
+        beforeEach(() => {
+          newValue = originalValue + 1;
+          model.value = newValue;
+        });
+
+        it('should trigger the parse', () => { expect(spyParse).to.have.been.called; });
+        it('should trigger the change event', () => { expect(spyTrigger).to.have.been.calledWith('change'); });
+        it('should store the new value', () => { expect(model.value).to.equal(newValue); });
+        it('should set hasChanged to true', () => { expect(model.hasChanged).to.be.true; });
+        it('should set isDirty to true', () => { expect(model.isDirty).to.be.true; });
+
+        describe('when value is set back to the original value', () => {
+          beforeEach(() => { model.value = originalValue; });
+
+          it('should set hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
+          it('should keep isDirty to true', () => { expect(model.isDirty).to.be.true; });
+        });
+      });
+
+      describe('when new value is not different from old value', () => {
         beforeEach(() => { model.value = originalValue; });
 
-        it('should set hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
-        it('should keep isDirty to true', () => { expect(model.isDirty).to.be.true; });
+        it('should not trigger the parse', () => { expect(spyParse).to.not.have.been.called; });
+        it('should not trigger the change event', () => { expect(spyTrigger).to.not.have.been.calledWith('change'); });
+        it('should keep hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
+        it('should keep isDirty to false', () => { expect(model.isDirty).to.be.false; });
+      });
+
+      describe('when listening for changes', () => {
+        it('should call listener', () => {
+          const callback = sinon.stub();
+          model.on('change', callback);
+
+          model.value = originalValue + 1;
+
+          expect(callback).to.have.been.calledWith({ value: model.value, originalValue, oldValue: originalValue });
+        });
       });
     });
 
-    describe('when new value is not different from old value', () => {
-      beforeEach(() => { model.value = originalValue; });
+    context('with inherited attribute class', () => {
+      context('when setProxy is overrided', () => {
+        const anyProperty = 'anyProperty';
+        const anyPropertyValue = 'Any value';
+        const customPropertyModification = 'Custom property modification';
+        class CustomAttribute extends Attribute {
+          setProxy(proxy) {
+            return (target, property, newValue) => {
+              if (property === anyProperty) {
+                newValue += customPropertyModification;
+              }
 
-      it('should not trigger the parse', () => { expect(spyParse).to.not.have.been.called; });
-      it('should not trigger the change event', () => { expect(spyTrigger).to.not.have.been.calledWith('change'); });
-      it('should keep hasChanged to false', () => { expect(model.hasChanged).to.be.false; });
-      it('should keep isDirty to false', () => { expect(model.isDirty).to.be.false; });
-    });
+              return super.setProxy(proxy)(target, property, newValue);
+            };
+          }
+        }
 
-    describe('when listening for changes', () => {
-      it('should call listener', () => {
-        const callback = sinon.stub();
-        model.on('change', callback);
+        it('should change proxy behaviour when updating a property', () => {
+          const expectedPropertyValue = anyPropertyValue + customPropertyModification;
+          model = new CustomAttribute();
+          model[anyProperty] = anyPropertyValue;
 
-        model.value = originalValue + 1;
-
-        expect(callback).to.have.been.calledWith({ value: model.value, originalValue, oldValue: originalValue });
+          expect(model[anyProperty]).to.eq(expectedPropertyValue);
+        });
       });
     });
   });
