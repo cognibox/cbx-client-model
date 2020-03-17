@@ -224,6 +224,78 @@ describe('Http', () => {
     });
   });
 
+  describe('.fetchOneFromUrlAndOptions', () => {
+    const defaultValue = 'Mitaine';
+    let KlassWithAttributes, id, url, data, httpOptions, result;
+
+    function configureHttpMock() {
+      httpMock().onGet(url, httpOptions).reply(() => {
+        return [200, data];
+      });
+    }
+
+    beforeEach(async() => {
+      id = Math.random();
+      url = `${urlRoot}/${urlResource}/${id}`;
+      data = {
+        stuff: Math.random(),
+      };
+
+      KlassWithAttributes = class extends Klass {
+        buildFields() { return { id: new Attribute(), stuff: new Attribute({ value: defaultValue }) }; }
+      };
+    });
+
+    context('when data is undefined', () => {
+      beforeEach(async() => {
+        configureHttpMock();
+        data = undefined;
+        result = await KlassWithAttributes.fetchOneFromUrlAndOptions({ url });
+      });
+
+      it('should return an instance of model class', () => {
+        expect(result).to.be.instanceOf(KlassWithAttributes);
+      });
+
+      it('should return data with default value', async() => {
+        expect(result.fields.stuff.value).to.equal(defaultValue);
+      });
+    });
+
+    context('when data is null', () => {
+      beforeEach(async() => {
+        configureHttpMock();
+        data = undefined;
+        result = await KlassWithAttributes.fetchOneFromUrlAndOptions({ url });
+      });
+
+      it('should return an instance of model class', () => {
+        expect(result).to.be.instanceOf(KlassWithAttributes);
+      });
+
+      it('should return data with default value', async() => {
+        expect(result.fields.stuff.value).to.equal(defaultValue);
+      });
+    });
+
+    context('with options', () => {
+      beforeEach(async() => {
+        httpOptions = { params: { stuff: Math.random() } };
+        configureHttpMock();
+
+        result = await KlassWithAttributes.fetchOneFromUrlAndOptions({ url, options: httpOptions });
+      });
+
+      it('should return an instance of model class', () => {
+        expect(result).to.be.instanceOf(KlassWithAttributes);
+      });
+
+      it('should retrieve data according to specified url and options', async() => {
+        expect(result.fields.stuff.value).to.equal(data.stuff);
+      });
+    });
+  });
+
   describe('#buildUrl', () => {
     describe('when id is the primary key', () => {
       let KlassWithAttributes;
