@@ -222,6 +222,7 @@ describe('Association', () => {
                 },
               },
             }),
+            hasManyAssoc: new HasMany({ value: [], model: OtherModelWithAssociations }),
           };
         }
       };
@@ -299,6 +300,16 @@ describe('Association', () => {
       it('should equal itself when calling the association value', () => {
         const modelWithAss = new ModelWithAssociations({ assoc: { id: Math.random() } });
         expect(modelWithAss.fields.assoc.value).to.equal(modelWithAss.fields.assoc.value);
+      });
+    });
+
+    context('when the initial association value is null', () => {
+      beforeEach(() => {
+        model = new ModelWithAssociations({ assoc: null, validatedAssoc: null, hasManyAssoc: null });
+      });
+
+      it('should still load the model', () => {
+        expect(model).to.not.be.undefined;
       });
     });
   });
