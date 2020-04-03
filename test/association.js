@@ -5,6 +5,7 @@ import Attribute from '../lib/attribute.js';
 import Model from '../lib/model.js';
 import validationMixin from '../lib/mixins/validation.js';
 import validationFieldMixin from '../lib/field-mixins/validation.js';
+import sinon from 'sinon';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -38,6 +39,25 @@ describe('Association', () => {
 
               association.value;
               expect(association.hasChanged).to.be.false;
+            });
+          });
+
+          context('when accessing value multiple times, then changing a field', () => {
+            let association, callCount, model;
+            beforeEach(() => {
+              callCount = 0;
+              association = new BelongsTo({ value: {}, model: CustomClass });
+              association.trigger = sinon.stub().callsFake((event) => {
+                if (event === 'change') callCount++;
+              });
+              model = association.value;
+              model = association.value;
+            });
+
+            it('should trigger change once', () => {
+              model.fields.id.value = 'foo';
+
+              expect(callCount).to.equal(1);
             });
           });
         });
