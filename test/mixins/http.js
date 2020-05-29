@@ -602,8 +602,8 @@ describe('Http', () => {
         return [200];
       });
 
-      const model = new KlassWithAttributes({id: Math.random()});
-      const result = await model.delete({url});
+      const model = new KlassWithAttributes({ id: Math.random() });
+      const result = await model.delete({ url });
 
       expect(result).to.not.be.undefined;
       expect(result.status).to.eq(200);
