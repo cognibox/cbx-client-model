@@ -592,21 +592,37 @@ describe('Http', () => {
   });
 
   describe('#delete', () => {
-    it('should resolve the request', async() => {
+    let model, url;
+
+    beforeEach(() => {
       const KlassWithAttributes = class extends Klass {
         buildFields() { return { id: new Attribute() }; }
       };
 
-      const url = `${urlRoot}/${urlResource}`;
-      httpMock().onDelete(url).reply(() => {
+      url = `${urlRoot}/${urlResource}`;
+      httpMock().onDelete().reply(() => {
         return [200];
       });
 
-      const model = new KlassWithAttributes({ id: Math.random() });
-      const result = await model.delete({ url });
+      model = new KlassWithAttributes({ id: Math.random() });
+    });
 
-      expect(result).to.not.be.undefined;
-      expect(result.status).to.eq(200);
+    context('with url param', () => {
+      it('should resolve the request', async() => {
+        const result = await model.delete({ url });
+
+        expect(result).to.not.be.undefined;
+        expect(result.status).to.eq(200);
+      });
+    });
+
+    context('without url param', () => {
+      it('should resolve the request', async() => {
+        const result = await model.delete();
+
+        expect(result).to.not.be.undefined;
+        expect(result.status).to.eq(200);
+      });
     });
   });
 });
