@@ -10,7 +10,7 @@
     "build": "babel lib -d dist"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "axios-mock-adapter": "^1.17.0",
     "lodash": "^4.17.15"
   },
