@@ -197,6 +197,43 @@ describe('Association', () => {
         });
       });
     });
+
+    context('for hasOne association', () => {
+      let association;
+      let id;
+
+      beforeEach(() => {
+        id = Math.random();
+        const instance = new CustomClass({ id });
+        association = new HasOne({ value: instance, model: CustomClass });
+      });
+
+      context('initially', () => {
+        it('should return false', () => {
+          expect(association.hasChanged).to.be.false;
+        });
+      });
+
+      context('when changing to a different primaryKey element', () => {
+        beforeEach(() => {
+          association.value = new CustomClass({ id: Math.random() });
+        });
+
+        it('should return true', () => {
+          expect(association.hasChanged).to.be.true;
+        });
+      });
+
+      context('when changing to a same primaryKey element', () => {
+        beforeEach(() => {
+          association.value = new CustomClass({ id, number: Math.random() });
+        });
+
+        it('should return false', () => {
+          expect(association.hasChanged).to.be.false;
+        });
+      });
+    });
   });
 
   describe('model with Associations', () => {
