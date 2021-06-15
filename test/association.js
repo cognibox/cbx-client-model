@@ -224,7 +224,7 @@ describe('Association', () => {
         });
       });
 
-      context('when changing to a same primaryKey element', () => {
+      context('when changing another element than the primary key', () => {
         beforeEach(() => {
           association.value = new CustomClass({ id, number: Math.random() });
         });
@@ -268,6 +268,7 @@ describe('Association', () => {
         buildFields() {
           return {
             id: new Attribute({ value: 1 }),
+            name: new Attribute({}),
             assoc: new HasOne({ value: {}, model: ModelWithAssociations }),
           };
         }
@@ -279,6 +280,32 @@ describe('Association', () => {
         it('should not cause a stack overflow', () => {
           model = new ModelWithAssociations();
           expect(model).to.not.be.undefined;
+        });
+      });
+    });
+
+    context('hasChanged', () => {
+      beforeEach(() => {
+        model = new ModelWithAssociations({ assoc: new OtherModelWithAssociations({ id: 1 }) });
+      });
+
+      context('when hasChanged is true on association', () => {
+        beforeEach(() => {
+          model.fields.assoc.value = new OtherModelWithAssociations({ id: 2 });
+        });
+
+        it('should be true on proxy', () => {
+          expect(model.fields.assoc.hasChanged).to.be.true;
+        });
+      });
+
+      context('when hasChanged is false on association', () => {
+        beforeEach(() => {
+          model.fields.assoc.value = new OtherModelWithAssociations({ id: 1, name: 'toto' });
+        });
+
+        it('should be true on proxy', () => {
+          expect(model.fields.assoc.hasChanged).to.be.false;
         });
       });
     });
