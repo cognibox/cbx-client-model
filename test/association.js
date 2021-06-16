@@ -308,6 +308,34 @@ describe('Association', () => {
           expect(model.fields.assoc.hasChanged).to.be.false;
         });
       });
+
+      context('when changing to undefined element', () => {
+        beforeEach(() => {
+          model.fields.assoc.value = undefined;
+        });
+
+        it('should be true on proxy', () => {
+          expect(model.fields.assoc.hasChanged).to.be.true;
+        });
+
+        it('should be dirty', () => {
+          expect(model.fields.assoc.isDirty).to.be.true;
+        });
+
+        context('when changing it back to new value of same id', () => {
+          beforeEach(() => {
+            model.fields.assoc.value = new OtherModelWithAssociations({ id: 1, name: 'toto' });
+          });
+
+          it('should be false on proxy', () => {
+            expect(model.fields.assoc.hasChanged).to.be.false;
+          });
+
+          it('should be dirty', () => {
+            expect(model.fields.assoc.isDirty).to.be.true;
+          });
+        });
+      });
     });
 
     context('validations', () => {
