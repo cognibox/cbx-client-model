@@ -1,6 +1,6 @@
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
-import { BelongsTo, HasMany, HasOne } from '../lib/association.js';
+import { BelongsTo, HasMany, HasOne, SingleAssociation } from '../lib/association.js';
 import Attribute from '../lib/attribute.js';
 import Model from '../lib/model.js';
 import validationMixin from '../lib/mixins/validation.js';
@@ -9,6 +9,30 @@ import sinon from 'sinon';
 
 const expect = chai.expect;
 chai.use(sinonChai);
+
+describe('SingleAssociation', () => {
+  let CustomClass;
+
+  beforeEach(() => {
+    CustomClass = class extends Model {
+      buildFields() {
+        return { id: new Attribute(), name: new Attribute() };
+      }
+    };
+  });
+
+  describe('computeHasChanged', () => {
+    context('initially', () => {
+      it('should set hasChanged to true', () => {
+        const association = new HasOne({ model: CustomClass });
+
+        association.computeHasChanged();
+
+        expect(association.hasChanged).to.be.true;
+      });
+    });
+  });
+});
 
 describe('Association', () => {
   let CustomClass;
