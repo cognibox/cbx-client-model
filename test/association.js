@@ -1,6 +1,6 @@
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
-import { BelongsTo, HasMany, HasOne, SingleAssociation } from '../lib/association.js';
+import { BelongsTo, HasMany, HasOne } from '../lib/association.js';
 import Attribute from '../lib/attribute.js';
 import Model from '../lib/model.js';
 import validationMixin from '../lib/mixins/validation.js';
