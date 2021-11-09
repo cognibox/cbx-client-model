@@ -419,7 +419,7 @@ describe('Http', () => {
   });
 
   describe('#save', () => {
-    let AssociationKlass, model, KlassWithAttributes;
+    let AssociationKlass, model, KlassWithAttributes, CustomAttribute;
 
     beforeEach(() => {
       AssociationKlass = class extends Klass {
@@ -427,6 +427,12 @@ describe('Http', () => {
           return {
             id: new Attribute(),
           };
+        }
+      };
+
+      CustomAttribute = class extends Attribute {
+        httpParse(key) {
+          return { [`${key}Modified`]: this.value };
         }
       };
 
@@ -439,6 +445,7 @@ describe('Http', () => {
             attr1: new Attribute(),
             attr2: new Attribute(),
             attr3: new Attribute(),
+            customAttribute: new CustomAttribute(),
             assoc: new HasOne({
               model: AssociationKlass,
             }),
@@ -559,10 +566,12 @@ describe('Http', () => {
         const attr1Value = Math.random();
         const newAttr1Value = attr1Value + 1;
         const newAttr3Value = Math.random();
+        const customValue = Math.random();
 
         httpMock().onPatch(url, {
           attr1: newAttr1Value,
           attr3: newAttr3Value,
+          customAttributeModified: customValue,
         }).reply(() => {
           return [200, patchData];
         });
@@ -575,6 +584,7 @@ describe('Http', () => {
 
         model.fields.attr1.value = newAttr1Value;
         model.fields.attr3.value = newAttr3Value;
+        model.fields.customAttribute.value = customValue;
       });
 
       it('should patch data', async() => {
