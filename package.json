@@ -2,7 +2,7 @@
   "name": "@cognibox/cbx-client-model",
   "description": "",
   "main": "dist/main.js",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "license": "MIT",
   "scripts": {
     "test": "mocha --recursive --require @babel/register",
