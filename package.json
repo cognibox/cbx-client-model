@@ -2,7 +2,7 @@
   "name": "@cognibox/cbx-client-model",
   "description": "",
   "main": "dist/main.js",
-  "version": "5.0.2",
+  "version": "5.0.4",
   "license": "MIT",
   "scripts": {
     "test": "mocha --recursive --require @babel/register",
@@ -10,7 +10,7 @@
     "build": "babel lib -d dist"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "0.29.0",
     "axios-mock-adapter": "^1.17.0",
     "lodash": "^4.17.21"
   },
