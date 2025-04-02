@@ -14,7 +14,7 @@ describe('Validation', () => {
               isThree(value) { return value === 3; },
             },
             autoValidate: false,
-          }
+          },
         );
       });
 
@@ -34,7 +34,7 @@ describe('Validation', () => {
                 isThree(value) { return value === 3; },
               },
               autoValidate: true,
-            }
+            },
           );
         });
 
@@ -60,7 +60,7 @@ describe('Validation', () => {
             validations: {
               isThree(value) { return value === 3; },
             },
-          }
+          },
         );
       });
 
