@@ -10,7 +10,7 @@
     "build": "babel lib -d dist"
   },
   "dependencies": {
-    "axios": "0.29.0",
+    "axios": "^0.29.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
